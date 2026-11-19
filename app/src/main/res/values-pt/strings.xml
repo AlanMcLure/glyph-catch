@@ -32,7 +32,7 @@
     <string name="home_super_rod_new_banner">Nova vara de pescar</string>
     <string name="home_super_rod_new_badge">Novo</string>
     <string name="home_super_rod_active_banner">Usando %1$s</string>
-    <string name="home_super_rod_active_badge">Faltam %1$d min</string>
+    <string name="home_super_rod_active_badge">Faltam %1$s</string>
     <string name="home_repel_new_banner">Repelente desbloqueado</string>
     <string name="home_repel_new_badge">Novo</string>
     <string name="home_well_rested_banner">Bem descansado: mais Pokémon raros</string>
@@ -163,8 +163,8 @@
     <string name="form_trash">Capa de Lixo</string>
     <string name="form_west">Mar Oeste</string>
     <string name="form_east">Mar Leste</string>
-    <string name="settings_backup_title">Backup</string>
-    <string name="settings_section_backup_description">Salve seu progresso em um arquivo ou restaure-o</string>
+    <string name="settings_backup_title">Dados e privacidade</string>
+    <string name="settings_section_backup_description">Salve seu progresso e escolha se quer compartilhar estatísticas anônimas</string>
     <string name="settings_backup_export_title">Exportar progresso</string>
     <string name="settings_backup_export_description">Salva seus Pokémon, a Pokédex, a Mochila e as configurações em um arquivo. Guarde-o em um lugar seguro ou passe para outro celular.</string>
     <string name="settings_backup_export_button">Exportar para arquivo</string>
@@ -219,8 +219,6 @@
     <string name="inventory_empty_title">Nenhum item ainda</string>
     <string name="inventory_empty_subtitle">Capture mais Pokémon para encontrar itens úteis.</string>
     <string name="inventory_item_title">DETALHES DO ITEM</string>
-    <string name="inventory_item_missing_title">Item não encontrado</string>
-    <string name="inventory_item_missing_subtitle">Este item não está mais disponível.</string>
     <string name="inventory_item_effect_duration">Efeito: %1$d minutos</string>
     <string name="inventory_item_active_label">Ativo (faltam %1$d min)</string>
     <string name="inventory_item_use_button">Usar %1$s</string>

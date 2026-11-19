@@ -69,12 +69,15 @@ import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.data.Stat
 import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.nameRes
+import dev.equalparts.glyph_catch.data.usesFemaleSprite
 import dev.equalparts.glyph_catch.gameplay.LevelCalculator
 import dev.equalparts.glyph_catch.gameplay.PokemonGlyphToyService
 import dev.equalparts.glyph_catch.gameplay.spawner.Weather
 import dev.equalparts.glyph_catch.gameplay.spawner.WeatherProvider
 import dev.equalparts.glyph_catch.ndotFontFamily
+import dev.equalparts.glyph_catch.rememberFemaleSprite
 import dev.equalparts.glyph_catch.screens.formatDuration
+import dev.equalparts.glyph_catch.screens.formatTimeLeft
 import dev.equalparts.glyph_catch.screens.professor.CallBadge
 import dev.equalparts.glyph_catch.screens.professor.EggSprite
 import dev.equalparts.glyph_catch.screens.professor.ProfessorEventHost
@@ -388,7 +391,7 @@ private fun HomeShortcuts(
             text = stringResource(R.string.home_rarity_boost_banner),
             modifier = Modifier.fillMaxWidth(),
             highlight = true,
-            badge = stringResource(R.string.home_super_rod_active_badge, boostMinutesLeft)
+            badge = stringResource(R.string.home_super_rod_active_badge, formatTimeLeft(boostMinutesLeft))
         )
     }
 }
@@ -609,7 +612,8 @@ private fun TrainingBanner(partner: CaughtPokemon, onPartnerClick: (CaughtPokemo
                 pokemonId = partner.speciesId,
                 pokemonName = species?.displayName ?: stringResource(R.string.common_unknown),
                 shiny = partner.isShiny,
-                form = partner.form
+                form = partner.form,
+                female = rememberFemaleSprite(partner)
             )
 
             Column(
@@ -701,6 +705,7 @@ private fun TrainerTipCard(dailyTip: String) {
 
 @Composable
 private fun EvolutionNotificationOverlay(notification: EvolutionNotification, onDismiss: () -> Unit) {
+    val context = LocalContext.current
     val previousSpecies = Pokemon[notification.previousSpeciesId]
     val newSpecies = Pokemon[notification.newSpeciesId]
     val dismissState = rememberSwipeToDismissBoxState(
@@ -742,7 +747,11 @@ private fun EvolutionNotificationOverlay(notification: EvolutionNotification, on
                         modifier = Modifier.size(AppSizes.homeTileHeight),
                         pokemonId = notification.newSpeciesId,
                         pokemonName = newSpecies?.displayName ?: stringResource(R.string.common_unknown),
-                        shiny = notification.shiny
+                        shiny = notification.shiny,
+                        female = remember(notification) {
+                            notification.pokemonId?.let { usesFemaleSprite(context, it, notification.newSpeciesId) } ==
+                                true
+                        }
                     )
 
                     Text(
@@ -831,7 +840,10 @@ private fun StatusBanners(
                     text = stringResource(R.string.home_super_rod_active_banner, stringResource(item.nameRes())),
                     modifier = Modifier.fillMaxWidth(),
                     highlight = true,
-                    badge = stringResource(R.string.home_super_rod_active_badge, status.remainingMinutes)
+                    badge = stringResource(
+                        R.string.home_super_rod_active_badge,
+                        formatTimeLeft(status.remainingMinutes)
+                    )
                 )
             }
             if (hasActiveEvent) {
@@ -919,7 +931,8 @@ private fun RecentCatchCard(pokemon: CaughtPokemon, referenceTimeMillis: Long, o
                     pokemonId = pokemon.speciesId,
                     pokemonName = species?.displayName ?: stringResource(R.string.common_unknown),
                     shiny = pokemon.isShiny,
-                    form = pokemon.form
+                    form = pokemon.form,
+                    female = rememberFemaleSprite(pokemon)
                 )
 
                 Spacer(modifier = Modifier.height(AppSizes.spacingTiny))
@@ -1089,7 +1102,6 @@ private fun WaitingPokemonCard() {
                 Row(horizontalArrangement = Arrangement.spacedBy(AppSizes.spacingSmall)) {
                     Button(
                         onClick = { PokemonGlyphToyService.catchOne(context) },
-                        enabled = !throwing,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(stringResource(R.string.home_throw_ball))

@@ -32,7 +32,7 @@
     <string name="home_super_rod_new_banner">Nuova canna da pesca</string>
     <string name="home_super_rod_new_badge">Nuovo</string>
     <string name="home_super_rod_active_banner">Stai usando %1$s</string>
-    <string name="home_super_rod_active_badge">Ancora %1$d min</string>
+    <string name="home_super_rod_active_badge">Ancora %1$s</string>
     <string name="home_repel_new_banner">Repellente sbloccato</string>
     <string name="home_repel_new_badge">Nuovo</string>
     <string name="home_well_rested_banner">Ben riposato: più Pokémon rari</string>
@@ -163,8 +163,8 @@
     <string name="form_trash">Manto Scarti</string>
     <string name="form_west">Mare Ovest</string>
     <string name="form_east">Mare Est</string>
-    <string name="settings_backup_title">Backup</string>
-    <string name="settings_section_backup_description">Salva i tuoi progressi in un file o ripristinali</string>
+    <string name="settings_backup_title">Dati e privacy</string>
+    <string name="settings_section_backup_description">Salva i tuoi progressi e scegli se condividere statistiche anonime</string>
     <string name="settings_backup_export_title">Esporta progressi</string>
     <string name="settings_backup_export_description">Salva i tuoi Pokémon, il Pokédex, la Borsa e le impostazioni in un file. Conservalo al sicuro o trasferiscilo su un altro telefono.</string>
     <string name="settings_backup_export_button">Esporta su file</string>
@@ -219,8 +219,6 @@
     <string name="inventory_empty_title">Ancora nessuno strumento</string>
     <string name="inventory_empty_subtitle">Cattura altri Pokémon per trovare strumenti utili.</string>
     <string name="inventory_item_title">DETTAGLI STRUMENTO</string>
-    <string name="inventory_item_missing_title">Strumento non trovato</string>
-    <string name="inventory_item_missing_subtitle">Questo strumento non è più disponibile.</string>
     <string name="inventory_item_effect_duration">Effetto: %1$d minuti</string>
     <string name="inventory_item_active_label">Attivo (ancora %1$d min)</string>
     <string name="inventory_item_use_button">Usa %1$s</string>

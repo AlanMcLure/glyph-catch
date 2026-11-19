@@ -58,7 +58,8 @@ async function main() {
     stats[id] = {
       h: pokemon[id].height, // decimetres
       w: pokemon[id].weight, // hectograms
-      f: species[id].has_gender_differences ? 1 : 0,
+      // Eevee's female look came with Sword and Shield, after Black and White
+      f: species[id].has_gender_differences && id !== 133 ? 1 : 0,
       g: species[id].gender_rate // -1 genderless, 0 all male … 8 all female
     };
   }

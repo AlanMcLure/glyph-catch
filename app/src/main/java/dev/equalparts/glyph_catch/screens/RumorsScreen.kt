@@ -41,6 +41,8 @@ fun RumorsScreen(db: PokemonDatabase, onBackClick: () -> Unit) {
     val pokedexCount by db.pokemonDao().watchPokedexProgress().collectAsStateWithLifecycle(0)
     val caughtSpeciesIds by db.pokemonDao().watchCaughtSpeciesIds().collectAsStateWithLifecycle(emptyList())
     val caughtSet = remember(caughtSpeciesIds) { caughtSpeciesIds.toSet() }
+    val shinyIds by db.pokemonDao().watchShinySpeciesIds().collectAsStateWithLifecycle(emptyList())
+    val shinySet = remember(shinyIds) { shinyIds.toSet() }
     val inventory by db.inventoryDao().watchAllItems().collectAsStateWithLifecycle(emptyList())
     val openRegions = Region.active(inventory.ownedItems(), emptySet())
     val unlocked = Rumors.all.count { pokedexCount >= it.unlockAt }
@@ -69,7 +71,8 @@ fun RumorsScreen(db: PokemonDatabase, onBackClick: () -> Unit) {
                     rumor = rumor,
                     regionOpen = Region.of(rumor.speciesId) in openRegions,
                     unlocked = pokedexCount >= rumor.unlockAt,
-                    found = rumor.speciesId in caughtSet
+                    found = rumor.speciesId in caughtSet,
+                    shinyCaught = rumor.speciesId in shinySet
                 )
             }
             item { Spacer(modifier = Modifier.size(AppSizes.spacingLarge)) }
@@ -78,7 +81,7 @@ fun RumorsScreen(db: PokemonDatabase, onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun RumorCard(rumor: Rumor, regionOpen: Boolean, unlocked: Boolean, found: Boolean) {
+private fun RumorCard(rumor: Rumor, regionOpen: Boolean, unlocked: Boolean, found: Boolean, shinyCaught: Boolean) {
     val species = Pokemon[rumor.speciesId]
     AppCard(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -91,7 +94,10 @@ private fun RumorCard(rumor: Rumor, regionOpen: Boolean, unlocked: Boolean, foun
             PokedexSpriteCircle(
                 pokemonId = rumor.speciesId,
                 pokemonName = species?.displayName.orEmpty(),
-                caught = found
+                caught = found,
+                // Once its shiny is caught, that's the one shown
+                shinyCaught = shinyCaught,
+                showShiny = true
             )
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppSizes.spacingTiny)) {
                 Text(

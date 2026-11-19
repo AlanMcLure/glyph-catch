@@ -12,6 +12,20 @@ val Item.isFishingRod: Boolean get() = this in FISHING_RODS
 /** Rods and Honey each bring their own Pokémon, so only one of them works at a time. */
 val LURES = FISHING_RODS + Item.HONEY
 
+/** The ten evolution stones, found when catching and given for missions. */
+val EVOLUTION_STONES = listOf(
+    Item.FIRE_STONE,
+    Item.WATER_STONE,
+    Item.THUNDER_STONE,
+    Item.LEAF_STONE,
+    Item.MOON_STONE,
+    Item.SUN_STONE,
+    Item.SHINY_STONE,
+    Item.DUSK_STONE,
+    Item.DAWN_STONE,
+    Item.ICE_STONE
+)
+
 /** Timed items used up when switched on, unlike the rods and the Honey. */
 val Item.isUsedUp: Boolean get() = this == Item.INCENSE
 
@@ -133,3 +147,7 @@ fun Item.category(): Int = when (this) {
     Item.REPEL, Item.SUPER_REPEL, Item.INCENSE -> 3
     else -> 4
 }
+
+/** When an effect ends after [count] more uses: they start once what's already burning ([current]) is over. */
+fun stackedExpiresAt(current: Long?, now: Long, durationMinutes: Int, count: Int): Long =
+    maxOf(now, current ?: now) + count * durationMinutes * 60_000L

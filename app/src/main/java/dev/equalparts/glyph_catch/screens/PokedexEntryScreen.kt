@@ -75,7 +75,6 @@ import dev.equalparts.glyph_catch.data.evolutionStages
 import dev.equalparts.glyph_catch.data.nameRes
 import dev.equalparts.glyph_catch.data.requiredGender
 import dev.equalparts.glyph_catch.data.types
-import dev.equalparts.glyph_catch.screens.garden.AnimatedPokemonSprite
 import dev.equalparts.glyph_catch.util.PokemonCries
 import dev.equalparts.glyph_catch.util.PokemonSpriteUtils
 import java.util.Locale

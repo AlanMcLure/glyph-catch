@@ -7,6 +7,7 @@ import dev.equalparts.glyph_catch.data.CaughtPokemon
 import dev.equalparts.glyph_catch.data.Eggs
 import dev.equalparts.glyph_catch.data.Gender
 import dev.equalparts.glyph_catch.data.LEGENDARY_SPECIES
+import dev.equalparts.glyph_catch.data.PokedexData
 import dev.equalparts.glyph_catch.data.Pokemon
 import dev.equalparts.glyph_catch.data.Region
 import dev.equalparts.glyph_catch.data.Type
@@ -101,44 +102,113 @@ object PokemonSearch {
         .replace("œ", "oe")
 
     /** What the query lets through; a blank one lets everything through. */
-    fun matcher(query: String): (CaughtPokemon) -> Boolean {
+    fun matcher(query: String): (CaughtPokemon) -> Boolean = parse(
+        query,
+        Facts(
+            species = { it.speciesId },
+            level = { it.level },
+            text = { pokemon, text -> pokemon.nickname?.let { normalize(it).contains(text) } == true },
+            has = { pokemon, keyword -> pokemon.has(keyword) }
+        )
+    )
+
+    /**
+     * The same search for the Pokédex, on species: names and also categories ("cocoon" finds
+     * Metapod and Kakuna). Shiny means its shiny is registered; egg means a baby that hatches.
+     */
+    fun speciesMatcher(
+        query: String,
+        shinies: Set<Int>,
+        known: (Int) -> Boolean = { true },
+        categoryOf: (Int) -> String? = ::category
+    ): (Int) -> Boolean {
+        val inCategory = { id: Int, text: String -> categoryOf(id)?.let { normalize(it).contains(text) } == true }
+        return parse(
+            query,
+            Facts(
+                species = { it },
+                level = { null },
+                text = inCategory,
+                // "+cocoon" brings the whole lines of the ones you've seen with that category
+                familyOf = { id, text -> known(id) && inCategory(id, text) },
+                has = { id, keyword ->
+                    when (keyword) {
+                        Keyword.SHINY -> id in shinies
+                        Keyword.LEGENDARY -> id in LEGENDARY_SPECIES
+                        Keyword.MYTHICAL -> id in MYTHICAL
+                        Keyword.EGG -> id in Eggs.hatchHours
+                        else -> false
+                    }
+                }
+            )
+        )
+    }
+
+    /** Whether the query asks for shinies (not "!shiny"): then the Pokédex shows their shiny sprites. */
+    fun asksForShiny(query: String): Boolean = query.split('&', ',', ';', ':').map(::normalize)
+        .any { vocabulary.keywords[it] == Keyword.SHINY }
+
+    /** Whether every term is a Pokédex number or range: the only search that shows unseen ones. */
+    fun isNumberQuery(query: String): Boolean {
+        val terms = query.split('&', ',', ';', ':').map(::normalize).filter { it.isNotEmpty() }
+        return terms.isNotEmpty() && terms.all { numbers(it) != null }
+    }
+
+    /** What a search needs to know about what it looks through: a caught Pokémon or a species. */
+    private class Facts<T>(
+        val species: (T) -> Int,
+        val level: (T) -> Int?,
+        /** Text besides the species' names: nicknames, or Pokédex categories. */
+        val text: (T, String) -> Boolean,
+        val has: (T, Keyword) -> Boolean,
+        /** Whether a species starts a family for "+" besides its name: a category in the Pokédex. */
+        val familyOf: (Int, String) -> Boolean = { _, _ -> false }
+    )
+
+    private fun <T> parse(query: String, facts: Facts<T>): (T) -> Boolean {
         val words = vocabulary
         val clauses = query.split('&').map { clause ->
-            clause.split(',', ';', ':').map(::normalize).filter { it.isNotEmpty() }.map { term(it, words) }
+            clause.split(',', ';', ':').map(::normalize).filter { it.isNotEmpty() }.map { term(it, words, facts) }
         }.filter { it.isNotEmpty() }
         if (clauses.isEmpty()) return { true }
-        return { pokemon -> clauses.all { terms -> terms.any { it(pokemon) } } }
+        return { subject -> clauses.all { terms -> terms.any { it(subject) } } }
     }
 
     private val number = Regex("^\\d+$")
     private val range = Regex("^(\\d*)-(\\d*)$")
 
-    private fun term(text: String, words: Vocabulary): (CaughtPokemon) -> Boolean {
+    private fun <T> term(text: String, words: Vocabulary, facts: Facts<T>): (T) -> Boolean {
         if (text.startsWith('!')) {
-            val inner = term(text.drop(1).trim(), words)
+            val inner = term(text.drop(1).trim(), words, facts)
             return { !inner(it) }
         }
         if (text.startsWith('+')) {
             val name = text.drop(1).trim()
-            val family = Pokemon.all.keys.filter { id -> namesOf(id).any { it.startsWith(name) } }
+            val family = Pokemon.all.keys.filter { id ->
+                namesOf(id).any { it.startsWith(name) } ||
+                    facts.familyOf(id, name)
+            }
                 .flatMap(::evolutionFamily)
                 .toSet()
-            return { it.speciesId in family }
+            return { facts.species(it) in family }
         }
-        numbers(text)?.let { ids -> return { it.speciesId in ids } }
+        numbers(text)?.let { ids -> return { facts.species(it) in ids } }
         words.levelPrefixes.sortedByDescending { it.length }.firstOrNull { text.startsWith(it) }
             ?.let { prefix -> numbers(text.removePrefix(prefix).trim()) }
-            ?.let { levels -> return { it.level in levels } }
+            ?.let { levels -> return { subject -> facts.level(subject)?.let { it in levels } == true } }
         words.types[text]?.let { type ->
-            return { Pokemon[it.speciesId]?.let { species -> species.type1 == type || species.type2 == type } == true }
+            return {
+                Pokemon[facts.species(it)]?.let { species -> species.type1 == type || species.type2 == type } ==
+                    true
+            }
         }
-        words.regions[text]?.let { region -> return { it.speciesId in region.ids } }
-        words.keywords[text]?.let { keyword -> return { it.has(keyword) } }
-        return { pokemon ->
-            pokemon.nickname?.let { normalize(it).contains(text) } == true ||
-                namesOf(pokemon.speciesId).any { it.contains(text) }
-        }
+        words.regions[text]?.let { region -> return { facts.species(it) in region.ids } }
+        words.keywords[text]?.let { keyword -> return { facts.has(it, keyword) } }
+        return { subject -> facts.text(subject, text) || namesOf(facts.species(subject)).any { it.contains(text) } }
     }
+
+    /** The species' Pokédex category in the phone's language, like "Cocoon Pokémon". */
+    private fun category(speciesId: Int): String? = appContext?.let { PokedexData.entry(it, speciesId)?.category }
 
     /** "25" or "1-151"; open ranges like "100-" or "-50" too. */
     private fun numbers(text: String): IntRange? {

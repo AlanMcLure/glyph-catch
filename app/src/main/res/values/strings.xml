@@ -35,7 +35,7 @@
     <string name="home_super_rod_new_banner">New fishing rod</string>
     <string name="home_super_rod_new_badge">New</string>
     <string name="home_super_rod_active_banner">Using %1$s</string>
-    <string name="home_super_rod_active_badge">%1$dm left</string>
+    <string name="home_super_rod_active_badge">%1$s left</string>
     <string name="home_repel_new_banner">Repel unlocked</string>
     <string name="home_repel_new_badge">New</string>
     <string name="home_well_rested_banner">Sleep bonus: Rare Pokémon rate up</string>
@@ -170,8 +170,8 @@
     <string name="form_trash">Trash Cloak</string>
     <string name="form_west">West Sea</string>
     <string name="form_east">East Sea</string>
-    <string name="settings_backup_title">Backup</string>
-    <string name="settings_section_backup_description">Save your progress to a file or restore it</string>
+    <string name="settings_backup_title">Data &amp; privacy</string>
+    <string name="settings_section_backup_description">Back up your progress and choose whether to share anonymous stats</string>
     <string name="settings_backup_export_title">Export progress</string>
     <string name="settings_backup_export_description">Saves your Pokémon, Pokédex, bag and settings to a file. Keep it somewhere safe or move it to another phone.</string>
     <string name="settings_backup_export_button">Export to file</string>
@@ -230,8 +230,6 @@
     <string name="inventory_empty_title">No items found yet</string>
     <string name="inventory_empty_subtitle">Catch more Pokemon to discover useful gear.</string>
     <string name="inventory_item_title">ITEM DETAILS</string>
-    <string name="inventory_item_missing_title">Item not found</string>
-    <string name="inventory_item_missing_subtitle">This item is no longer available.</string>
     <string name="inventory_item_quantity">%1$dx</string>
     <string name="inventory_item_effect_duration">Effect: %1$d minutes</string>
     <string name="inventory_item_active_label">Active (%1$dm remaining)</string>

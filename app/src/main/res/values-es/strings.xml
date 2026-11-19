@@ -32,7 +32,7 @@
     <string name="home_super_rod_new_banner">Nueva caña de pescar</string>
     <string name="home_super_rod_new_badge">Nuevo</string>
     <string name="home_super_rod_active_banner">Usando %1$s</string>
-    <string name="home_super_rod_active_badge">Quedan %1$d min</string>
+    <string name="home_super_rod_active_badge">Quedan %1$s</string>
     <string name="home_repel_new_banner">Repelente desbloqueado</string>
     <string name="home_repel_new_badge">Nuevo</string>
     <string name="home_well_rested_banner">Bien descansado: más Pokémon raros</string>
@@ -163,8 +163,8 @@
     <string name="form_trash">Tronco Basura</string>
     <string name="form_west">Mar Oeste</string>
     <string name="form_east">Mar Este</string>
-    <string name="settings_backup_title">Copia de seguridad</string>
-    <string name="settings_section_backup_description">Guarda tu progreso en un archivo o recupéralo</string>
+    <string name="settings_backup_title">Datos y privacidad</string>
+    <string name="settings_section_backup_description">Guarda tu progreso y elige si compartir estadísticas anónimas</string>
     <string name="settings_backup_export_title">Exportar progreso</string>
     <string name="settings_backup_export_description">Guarda tus Pokémon, la Pokédex, la Mochila y los ajustes en un archivo. Guárdalo en un sitio seguro o pásalo a otro móvil.</string>
     <string name="settings_backup_export_button">Exportar a archivo</string>
@@ -219,8 +219,6 @@
     <string name="inventory_empty_title">Aún no tienes objetos</string>
     <string name="inventory_empty_subtitle">Captura más Pokémon para encontrar objetos útiles.</string>
     <string name="inventory_item_title">DETALLES DEL OBJETO</string>
-    <string name="inventory_item_missing_title">Objeto no encontrado</string>
-    <string name="inventory_item_missing_subtitle">Este objeto ya no está disponible.</string>
     <string name="inventory_item_effect_duration">Efecto: %1$d minutos</string>
     <string name="inventory_item_active_label">Activo (quedan %1$d min)</string>
     <string name="inventory_item_use_button">Usar %1$s</string>

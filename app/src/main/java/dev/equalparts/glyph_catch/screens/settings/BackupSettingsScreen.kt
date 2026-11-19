@@ -124,6 +124,8 @@ fun BackupSettingsScreen(modifier: Modifier) {
                 Text(stringResource(R.string.settings_backup_import_button))
             }
         }
+
+        AnonymousStatsCard()
     }
 
     pendingImport?.let { save ->

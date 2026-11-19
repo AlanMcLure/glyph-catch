@@ -2,6 +2,33 @@
 
 All notable changes to Glyph Catch since it was continued from [Equal Parts' original](https://github.com/equalparts/glyph-catch).
 
+## 3.9.0
+
+### New
+
+- The Collector: once you know about Eggs, he'll call you. Phone him on the Pokégear whenever things pile up in your Bag and he'll trade them for an Egg: the more you give, the better the Egg, and with enough you even choose the baby. Once in a long while, the babies to choose from all show up shiny: whichever you pick will hatch shiny. Same odds as any Egg, rolled each time you hand them over.
+- Search the Pokédex: by name, number or range, category ("cocoon" finds Metapod and Kakuna), type, region, legendary, mythical, egg or shiny, and "+" for whole families ("+pikachu", "+cocoon"). Unseen Pokémon only show up as ??? when you search their number. Searching "shiny" shows their shiny sprites.
+- Your pace: in Settings > Glyph Toy, choose how often Pokémon appear (from the usual one every 20 minutes or so to one every couple of hours) and how many can wait at once, from 1 to 9.
+- Anonymous stats, off unless you turn them on in Settings > Data & privacy: once a day, your phone model, a few settings and your progress, with no name or account, to know what to improve. "See what's sent" shows exactly what goes, and turning it off deletes it. Details in the [privacy policy](PRIVACY.md).
+
+### Improved
+
+- Eggs hatch on time: they're timers now, so they keep going whether you use your phone or not.
+- Incense adds up: light several at once, or more while one is burning, and the hours add up.
+- "See in the Pokédex" in a Pokémon's details opens its Pokédex entry.
+- Throw Poké Balls from the widget or the app as fast as you like: every tap catches the next Pokémon right away.
+- Time left on Home reads 1h 32m or 1d 3h 45m instead of only minutes.
+- Shinies evolve into shinies in the previews too: when using a stone or a Linking Cord on a shiny, its evolution shows in shiny if you've already had one, or as "?" if not.
+- Females with their own look, like Pikachu's heart-shaped tail, now show it everywhere: Home, the PC, item lists, the Team widget and the evolution card on Home.
+- Rumors show the shiny of the Pokémon whose shiny you've caught.
+- In Glyph style, shinies on the Team and Waiting widgets show in negative, like in the app.
+
+### Fixed
+
+- After a few quick catches, the Poké Ball could stay stuck on the Glyph Matrix for a long while.
+- When an item runs out, you go back to the Bag instead of an "Item not found" screen.
+- Eevee no longer has a female look, as it didn't have one in Black and White.
+
 ## 3.8.0
 
 - A new Pokédex: tap a registered Pokémon to see its entry, and swipe through all of them. Its animated sprite (female too, where they look different, and its shiny once you've caught one), its cry, category and description, height, weight and gender ratio, weaknesses and resistances, and its evolution line: tap an evolution you've registered to jump to it.

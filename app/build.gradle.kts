@@ -10,6 +10,9 @@ plugins {
     kotlin("plugin.serialization") version "2.0.21"
 }
 
+// The Firebase project for anonymous stats; builds without it simply never send them
+if (file("google-services.json").exists()) apply(plugin = "com.google.gms.google-services")
+
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = if (keystorePropertiesFile.exists()) {
     Properties().apply {
@@ -27,8 +30,8 @@ android {
         applicationId = "dev.erikpeto.glyphcatch"
         minSdk = 35
         targetSdk = 36
-        versionCode = 38000
-        versionName = "3.8.0"
+        versionCode = 39000
+        versionName = "3.9.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -110,6 +113,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.compose)
     implementation(files("libs/GlyphMatrixSDK.aar"))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.kotlinx.coroutines.play.services)
 }
 
 ktlint {

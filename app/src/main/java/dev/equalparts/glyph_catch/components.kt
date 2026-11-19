@@ -45,7 +45,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import dev.equalparts.glyph_catch.data.CaughtPokemon
 import dev.equalparts.glyph_catch.data.Item
+import dev.equalparts.glyph_catch.data.usesFemaleSprite
 import dev.equalparts.glyph_catch.gameplay.LevelCalculator
 import dev.equalparts.glyph_catch.util.ItemSpriteUtils
 import dev.equalparts.glyph_catch.util.PokemonSpriteUtils
@@ -141,7 +143,8 @@ fun PokedexSpriteCircle(
     pokemonName: String,
     caught: Boolean,
     size: Dp? = AppSizes.pokemonImageSize,
-    shinyCaught: Boolean = false
+    shinyCaught: Boolean = false,
+    showShiny: Boolean = false
 ) {
     val background = if (caught) CatchColors.Black else CatchColors.MediumGray
     PokemonSpriteCircle(
@@ -151,6 +154,7 @@ fun PokedexSpriteCircle(
         backgroundColor = background,
         showSprite = caught,
         size = size,
+        shiny = showShiny && shinyCaught,
         showShinyBadge = shinyCaught
     )
 }
@@ -207,6 +211,13 @@ fun ItemGlyphCircle(
     }
 }
 
+/** Whether this Pokémon is shown with its species' female look, like Pikachu's heart-shaped tail. */
+@Composable
+fun rememberFemaleSprite(pokemon: CaughtPokemon): Boolean {
+    val context = LocalContext.current
+    return remember(pokemon.id, pokemon.speciesId) { pokemon.usesFemaleSprite(context) }
+}
+
 /**
  * Whether the app shows Pokémon in color instead of the Glyph Matrix style.
  */
@@ -223,10 +234,20 @@ fun PokemonSpriteCircle(
     size: Dp? = AppSizes.pokemonImageSize,
     shiny: Boolean = false,
     form: String? = null,
-    showShinyBadge: Boolean = shiny
+    showShinyBadge: Boolean = shiny,
+    female: Boolean = false
 ) {
     Box(modifier = modifier.then(if (size != null) Modifier.size(size) else Modifier)) {
-        PokemonSpriteCircleContent(pokemonId, pokemonName, backgroundColor, showSprite, contentPadding, shiny, form)
+        PokemonSpriteCircleContent(
+            pokemonId,
+            pokemonName,
+            backgroundColor,
+            showSprite,
+            contentPadding,
+            shiny,
+            form,
+            female
+        )
         if (showShinyBadge && showSprite) {
             Text(
                 text = "✨",
@@ -245,7 +266,8 @@ private fun PokemonSpriteCircleContent(
     showSprite: Boolean,
     contentPadding: Dp,
     shiny: Boolean,
-    form: String?
+    form: String?,
+    female: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -256,8 +278,8 @@ private fun PokemonSpriteCircleContent(
     ) {
         val context = LocalContext.current
         val colorSprites = LocalColorSprites.current
-        val colorResourceId = remember(pokemonId, shiny, form, context) {
-            PokemonSpriteUtils.getColorResourceId(context, pokemonId, shiny, form)
+        val colorResourceId = remember(pokemonId, shiny, form, female, context) {
+            PokemonSpriteUtils.getColorResourceId(context, pokemonId, shiny, form, female)
         }
         val resourceId = remember(pokemonId, form, context) {
             PokemonSpriteUtils.getMatrixResourceId(context, pokemonId, form)

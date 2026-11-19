@@ -2,7 +2,6 @@ package dev.equalparts.glyph_catch.navigation
 
 import android.net.Uri
 import androidx.annotation.DrawableRes
-import dev.equalparts.glyph_catch.Features
 import dev.equalparts.glyph_catch.R
 
 sealed class AppScreen(val route: String, @field:DrawableRes val iconRes: Int) {
@@ -16,11 +15,10 @@ sealed class AppScreen(val route: String, @field:DrawableRes val iconRes: Int) {
             else -> "$baseRoute?search=${Uri.encode(search)}"
         }
     }
-    object Garden : AppScreen("garden", R.drawable.icon_plant)
     object Inventory : AppScreen("inventory", R.drawable.icon_bag)
     object Settings : AppScreen("settings", R.drawable.icon_grid_dots)
 
     companion object {
-        val bottomNavItems = listOfNotNull(Home, Pokedex, Garden.takeIf { Features.TOWN }, Caught, Inventory)
+        val bottomNavItems = listOf(Home, Pokedex, Caught, Inventory)
     }
 }

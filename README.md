@@ -5,7 +5,7 @@
 
 A Pokémon catching game for the Nothing Phone (3) Glyph Matrix, and the Phone (4a) Pro in beta. Leave your phone face-down and Pokémon appear on the Glyph Matrix. Long-press to catch them.
 
-### [⬇️ Download](https://github.com/ErikPeTo1/glyph-catch/releases/latest) · [What's new](CHANGELOG.md) · [FAQ](FAQ.md)
+### [⬇️ Download](https://github.com/ErikPeTo1/glyph-catch/releases/latest) · [What's new](CHANGELOG.md) · [FAQ](FAQ.md) · [Privacy](PRIVACY.md)
 
 Coming from the original Glyph Catch? [Bring your progress along](FAQ.md#can-i-keep-my-progress-from-the-original-glyph-catch).
 
@@ -17,17 +17,18 @@ Set Glyph Catch as your **Always-on Glyph Toy**. The app tells you when there's 
 - Professors who unlock each region and call you with rumors
 - Shinies, eggs and legendary Pokémon with their own items
 - Charge your phone and Electric types show up
-- A Pokédex with entries, cries, weaknesses and evolution lines
+- A Pokédex with entries, cries, weaknesses and evolution lines, and a search like Pokémon GO's
 - Friendship, genders and the evolutions that depend on them
 - Home-screen widgets with your team, framed in the PC Box wallpapers
 - Achievements that unlock more wallpapers, and a companion on your Glyph Matrix
-- Super Repel, Honey and Incense to choose who shows up, and how often
+- Super Repel, Honey and Incense to choose who shows up, and your own pace
+- A Collector who trades what piles up in your Bag for Eggs
 
 ![Home, Professor Oak and Pokédex](screenshots-1.png)
 ![Pokémon, Bag and the black-and-white style](screenshots-2.png)
 <img src="widget-team.png" alt="Team widget" width="280">
 
-Free, no ads, no data collected.
+Free, no ads. Anonymous stats are off unless you turn them on: see the [privacy policy](PRIVACY.md).
 
 ## Credits
 

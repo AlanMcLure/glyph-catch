@@ -78,6 +78,7 @@ import dev.equalparts.glyph_catch.data.PokemonDatabase
 import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.releasePokemon
+import dev.equalparts.glyph_catch.rememberFemaleSprite
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -451,7 +452,8 @@ private fun CaughtPokemonGridCell(
                     pokemonId = pokemon.speciesId,
                     pokemonName = species.displayName,
                     shiny = pokemon.isShiny,
-                    form = pokemon.form
+                    form = pokemon.form,
+                    female = rememberFemaleSprite(pokemon)
                 )
                 if (pokemon.isFavorite) {
                     Icon(
@@ -518,7 +520,8 @@ fun CaughtPokemonCard(
                 pokemonId = pokemon.speciesId,
                 pokemonName = species.displayName,
                 shiny = pokemon.isShiny,
-                form = pokemon.form
+                form = pokemon.form,
+                female = rememberFemaleSprite(pokemon)
             )
 
             Spacer(modifier = Modifier.size(AppSizes.spacingMedium))

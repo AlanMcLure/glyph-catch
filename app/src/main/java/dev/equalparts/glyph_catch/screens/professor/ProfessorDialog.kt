@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -44,14 +43,12 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import dev.equalparts.glyph_catch.Features
 import dev.equalparts.glyph_catch.ItemGlyphCircle
 import dev.equalparts.glyph_catch.R
 import dev.equalparts.glyph_catch.data.Item
 import dev.equalparts.glyph_catch.data.LegendaryItems
 import dev.equalparts.glyph_catch.data.NpcEvent
 import dev.equalparts.glyph_catch.data.PLAYER_NAME_LENGTH
-import dev.equalparts.glyph_catch.data.PlayerLook
 import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.data.Professor
 import dev.equalparts.glyph_catch.data.ProfessorEvent
@@ -75,7 +72,6 @@ data class DialoguePage(
 
 /** A page that waits for the player to answer about themselves. */
 sealed class DialogueAsk {
-    class Look(val onPick: (PlayerLook) -> Unit) : DialogueAsk()
     class Name(val onDone: (String) -> Unit) : DialogueAsk()
 }
 
@@ -161,10 +157,6 @@ fun CharacterDialog(
                 }
                 if (shown >= page.text.length) {
                     when (val ask = page.ask) {
-                        is DialogueAsk.Look -> LookPicker { look ->
-                            ask.onPick(look)
-                            next()
-                        }
                         is DialogueAsk.Name -> NameEntry { name ->
                             ask.onDone(name)
                             next()
@@ -199,25 +191,6 @@ fun CharacterDialog(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-/** The four looks side by side; tap one. */
-@Composable
-private fun LookPicker(onPick: (PlayerLook) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        PlayerLook.entries.forEach { look ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .border(2.dp, Color.White, RoundedCornerShape(12.dp))
-                    .clickable { onPick(look) }
-                    .padding(4.dp)
-            ) {
-                CharacterSprite(look.portrait, look.name, modifier = Modifier.fillMaxSize())
             }
         }
     }
@@ -370,6 +343,30 @@ object NpcScripts {
             DialoguePage(context.getString(R.string.npc_breeder_4)),
             DialoguePage(context.getString(R.string.npc_breeder_5), egg = true)
         )
+        NpcEvent.Collector -> listOf(
+            DialoguePage(context.getString(R.string.collector_intro_1)),
+            DialoguePage(context.getString(R.string.collector_intro_2)),
+            DialoguePage(context.getString(R.string.professor_number))
+        )
+        NpcEvent.Developer -> {
+            val preferences = PreferencesManager(context)
+            listOf(
+                DialoguePage(context.getString(R.string.developer_call_1)),
+                DialoguePage(context.getString(R.string.developer_call_2)),
+                DialoguePage(context.getString(R.string.developer_call_3)),
+                DialoguePage(context.getString(R.string.developer_call_4)),
+                DialoguePage(
+                    context.getString(R.string.developer_call_ask),
+                    choices = listOf(
+                        DialogueChoice(context.getString(R.string.developer_call_yes)) {
+                            preferences.shareStats = true
+                        },
+                        DialogueChoice(context.getString(R.string.developer_call_no)) { preferences.shareStats = false }
+                    )
+                ),
+                DialoguePage(context.getString(R.string.developer_call_bye))
+            )
+        }
     }
 }
 
@@ -396,43 +393,19 @@ object ProfessorScripts {
         Professor.JUNIPER -> R.string.professor_juniper_hello
     }
 
-    /**
-     * Oak asks the look, then the name, then says it back. Until the town is out there's nowhere
-     * to see the look, so he only asks the name, with [nameOnlyRes].
-     */
-    private fun aboutYou(
-        context: Context,
-        lookRes: Int,
-        nameRes: Int,
-        nameOnlyRes: Int,
-        thanksRes: Int
-    ): List<DialoguePage> {
+    /** Oak asks the name, then says it back. */
+    private fun aboutYou(context: Context, nameRes: Int, thanksRes: Int): List<DialoguePage> {
         val preferences = PreferencesManager(context)
-        val name = DialogueAsk.Name { preferences.playerName = it }
-        return if (Features.TOWN) {
-            listOf(
-                DialoguePage(context.getString(lookRes), ask = DialogueAsk.Look { preferences.playerLook = it.name }),
-                DialoguePage(context.getString(nameRes), ask = name),
-                DialoguePage(context.getString(thanksRes, PLAYER_NAME))
-            )
-        } else {
-            listOf(
-                DialoguePage(context.getString(nameOnlyRes), ask = name),
-                DialoguePage(context.getString(thanksRes, PLAYER_NAME))
-            )
-        }
+        return listOf(
+            DialoguePage(context.getString(nameRes), ask = DialogueAsk.Name { preferences.playerName = it }),
+            DialoguePage(context.getString(thanksRes, PLAYER_NAME))
+        )
     }
 
     /** For players Oak welcomed before he asked their name. */
     fun forgotName(context: Context): List<DialoguePage> =
         listOf(DialoguePage(context.getString(R.string.oak_forgot_name_1))) +
-            aboutYou(
-                context,
-                R.string.oak_forgot_look,
-                R.string.oak_forgot_name_2,
-                R.string.oak_forgot_name_only,
-                R.string.oak_forgot_name_3
-            )
+            aboutYou(context, R.string.oak_forgot_name_only, R.string.oak_forgot_name_3)
 
     /** How to play on the Phone (4a) Pro, whose button can't catch. */
     fun pokeBallTip(context: Context): List<DialoguePage> = listOf(
@@ -449,13 +422,7 @@ object ProfessorScripts {
                 add(5, DialoguePage(context.getString(R.string.oak_kanto_gift), gift = Item.POKEDEX_KANTO))
                 addAll(
                     3,
-                    aboutYou(
-                        context,
-                        R.string.oak_ask_look,
-                        R.string.oak_ask_name,
-                        R.string.oak_ask_name_only,
-                        R.string.oak_nice_to_meet
-                    )
+                    aboutYou(context, R.string.oak_ask_name_only, R.string.oak_nice_to_meet)
                 )
             }
             ProfessorEvent.KantoPokedex -> listOf(

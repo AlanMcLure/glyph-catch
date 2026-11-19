@@ -32,7 +32,7 @@
     <string name="home_super_rod_new_banner">Nouvelle canne à pêche</string>
     <string name="home_super_rod_new_badge">Nouveau</string>
     <string name="home_super_rod_active_banner">%1$s en cours</string>
-    <string name="home_super_rod_active_badge">Encore %1$d min</string>
+    <string name="home_super_rod_active_badge">Encore %1$s</string>
     <string name="home_repel_new_banner">Repousse débloqué</string>
     <string name="home_repel_new_badge">Nouveau</string>
     <string name="home_well_rested_banner">Bien reposé : plus de Pokémon rares</string>
@@ -163,8 +163,8 @@
     <string name="form_trash">Cape Déchet</string>
     <string name="form_west">Mer Occident</string>
     <string name="form_east">Mer Orient</string>
-    <string name="settings_backup_title">Sauvegarde</string>
-    <string name="settings_section_backup_description">Enregistre ta progression dans un fichier ou restaure-la</string>
+    <string name="settings_backup_title">Données et confidentialité</string>
+    <string name="settings_section_backup_description">Sauvegarde ta progression et choisis de partager ou non des statistiques anonymes</string>
     <string name="settings_backup_export_title">Exporter la progression</string>
     <string name="settings_backup_export_description">Enregistre tes Pokémon, le Pokédex, le Sac et les paramètres dans un fichier. Garde-le en lieu sûr ou transfère-le sur un autre téléphone.</string>
     <string name="settings_backup_export_button">Exporter dans un fichier</string>
@@ -219,8 +219,6 @@
     <string name="inventory_empty_title">Aucun objet pour l\'instant</string>
     <string name="inventory_empty_subtitle">Capture plus de Pokémon pour trouver des objets utiles.</string>
     <string name="inventory_item_title">DÉTAILS DE L\'OBJET</string>
-    <string name="inventory_item_missing_title">Objet introuvable</string>
-    <string name="inventory_item_missing_subtitle">Cet objet n\'est plus disponible.</string>
     <string name="inventory_item_effect_duration">Effet : %1$d minutes</string>
     <string name="inventory_item_active_label">Actif (encore %1$d min)</string>
     <string name="inventory_item_use_button">Utiliser %1$s</string>

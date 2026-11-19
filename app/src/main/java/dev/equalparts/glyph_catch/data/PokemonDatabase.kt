@@ -71,7 +71,9 @@ data class Egg(
     val speciesId: Int,
     val minutesNeeded: Int,
     val minutesProgress: Int = 0,
-    val obtainedAt: Long = System.currentTimeMillis()
+    val obtainedAt: Long = System.currentTimeMillis(),
+    /** Rolled when the Egg is found; null for Eggs from before, which roll when they hatch. */
+    @ColumnInfo(defaultValue = "NULL") val isShiny: Boolean? = null
 )
 
 /**
@@ -150,6 +152,9 @@ interface PokemonDao {
 
     @Query("SELECT COUNT(*) FROM caught_pokemon")
     suspend fun getTotalCaughtCount(): Int
+
+    @Query("SELECT MIN(caughtAt) FROM caught_pokemon")
+    suspend fun getFirstCatchTime(): Long?
 
     @Query("SELECT COUNT(*) FROM caught_pokemon WHERE date(caughtAt/1000, 'unixepoch') = date('now')")
     fun watchCaughtTodayCount(): Flow<Int>
@@ -304,6 +309,9 @@ interface InventoryDao {
     @Query("UPDATE inventory SET quantity = quantity - 1 WHERE itemId = :itemId AND quantity > 0")
     suspend fun useItem(itemId: Int)
 
+    @Query("UPDATE inventory SET quantity = quantity - :amount WHERE itemId = :itemId AND quantity >= :amount")
+    suspend fun useItems(itemId: Int, amount: Int)
+
     @Query("SELECT * FROM inventory")
     suspend fun getAllItems(): List<InventoryItem>
 
@@ -330,6 +338,9 @@ interface EggDao {
 
     @Query("UPDATE eggs SET minutesProgress = minutesProgress + 1")
     suspend fun advanceEggs()
+
+    @Query("UPDATE eggs SET minutesProgress = minutesProgress + :minutes")
+    suspend fun advanceEggs(minutes: Int)
 
     @Query("SELECT * FROM eggs WHERE minutesProgress >= minutesNeeded")
     suspend fun getHatched(): List<Egg>
@@ -384,7 +395,7 @@ interface ActiveItemDao {
         Egg::class,
         DebugEvent::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
@@ -394,7 +405,8 @@ interface ActiveItemDao {
         AutoMigration(from = 10, to = 11),
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
-        AutoMigration(from = 13, to = 14)
+        AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15)
     ]
 )
 abstract class PokemonDatabase : RoomDatabase() {

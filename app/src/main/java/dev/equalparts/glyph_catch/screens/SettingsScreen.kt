@@ -134,6 +134,9 @@ private fun SettingsContent(
         SettingsDestination.Graphics -> GraphicsSettingsScreen(modifier = modifier)
         SettingsDestination.Backup -> BackupSettingsScreen(modifier = modifier)
         SettingsDestination.Debug -> DebugSettingsScreen(modifier = modifier)
-        SettingsDestination.Hidden -> HiddenSettingsScreen(modifier = modifier)
+        SettingsDestination.Hidden -> HiddenSettingsScreen(
+            modifier = modifier,
+            onHide = { onDestinationChange(SettingsDestination.SectionList) }
+        )
     }
 }

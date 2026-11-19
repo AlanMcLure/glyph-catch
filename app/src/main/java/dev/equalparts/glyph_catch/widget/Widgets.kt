@@ -3,6 +3,10 @@ package dev.equalparts.glyph_catch.widget
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -10,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -50,6 +55,7 @@ import dev.equalparts.glyph_catch.MainActivity
 import dev.equalparts.glyph_catch.R
 import dev.equalparts.glyph_catch.data.PokemonDatabase
 import dev.equalparts.glyph_catch.data.PreferencesManager
+import dev.equalparts.glyph_catch.data.usesFemaleSprite
 import dev.equalparts.glyph_catch.gameplay.PersistentSpawn
 import dev.equalparts.glyph_catch.gameplay.PokemonGlyphToyService
 import dev.equalparts.glyph_catch.gameplay.WaitingNotification
@@ -72,9 +78,16 @@ import kotlinx.serialization.json.Json
 /** A sprite ready to draw: pixel art scaled up without blurring. */
 private class WidgetSprite(val bitmap: Bitmap)
 
-private fun loadSprite(context: Context, speciesId: Int, shiny: Boolean, form: String?, color: Boolean): WidgetSprite? {
+private fun loadSprite(
+    context: Context,
+    speciesId: Int,
+    shiny: Boolean,
+    form: String?,
+    color: Boolean,
+    female: Boolean = false
+): WidgetSprite? {
     val resource = if (color) {
-        PokemonSpriteUtils.getColorResourceId(context, speciesId, shiny, form)
+        PokemonSpriteUtils.getColorResourceId(context, speciesId, shiny, form, female)
     } else {
         PokemonSpriteUtils.getMatrixResourceId(context, speciesId, form)
     }
@@ -83,8 +96,23 @@ private fun loadSprite(context: Context, speciesId: Int, shiny: Boolean, form: S
     val source = BitmapFactory.decodeResource(context.resources, resource, options) ?: return null
     // Keep the pixels crisp: scale small sprites up by whole steps, without filtering
     val factor = (SPRITE_PIXELS / source.width).coerceAtLeast(1)
-    val bitmap = if (factor > 1) source.scale(source.width * factor, source.height * factor, false) else source
-    return WidgetSprite(bitmap)
+    val scaled = if (factor > 1) source.scale(source.width * factor, source.height * factor, false) else source
+    // Shinies use the negative image in Glyph style, just like in the app and on the Glyph Matrix
+    return WidgetSprite(if (shiny && !color) scaled.inverted() else scaled)
+}
+
+private fun Bitmap.inverted(): Bitmap {
+    val out = createBitmap(width, height)
+    val invert = ColorMatrix(
+        floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f,
+            0f, -1f, 0f, 0f, 255f,
+            0f, 0f, -1f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f
+        )
+    )
+    Canvas(out).drawBitmap(this, 0f, 0f, Paint().apply { colorFilter = ColorMatrixColorFilter(invert) })
+    return out
 }
 
 private const val SPRITE_PIXELS = 176
@@ -222,7 +250,7 @@ private fun WidgetButton(background: WidgetBackground, text: String, onClick: Ac
 }
 
 /** What a team member looks like; the widget only redraws when one of these changes. */
-private data class TeamLook(val speciesId: Int, val shiny: Boolean, val form: String?)
+private data class TeamLook(val speciesId: Int, val shiny: Boolean, val form: String?, val female: Boolean)
 
 private data class TeamState(val background: WidgetBackground, val sprites: List<WidgetSprite?>)
 
@@ -241,11 +269,13 @@ class TeamWidget : GlanceAppWidget() {
             Triple(
                 WidgetBackground.from(preferences.widgetBackground),
                 preferences.colorSprites,
-                preferences.team.mapNotNull { byId[it] }.map { TeamLook(it.speciesId, it.isShiny, it.form) }
+                preferences.team.mapNotNull {
+                    byId[it]
+                }.map { TeamLook(it.speciesId, it.isShiny, it.form, it.usesFemaleSprite(context)) }
             )
         }.distinctUntilChanged()
         val states = looks.map { (background, color, team) ->
-            TeamState(background, team.map { loadSprite(context, it.speciesId, it.shiny, it.form, color) })
+            TeamState(background, team.map { loadSprite(context, it.speciesId, it.shiny, it.form, color, it.female) })
         }
         val initial = states.first()
 

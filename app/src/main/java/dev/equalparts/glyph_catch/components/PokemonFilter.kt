@@ -157,19 +157,22 @@ fun PokemonFilterControls(
     }
 }
 
+/** The search box, with an ⓘ that explains how to search. Also used in the Pokédex. */
 @Composable
-private fun PokemonFilterSearchField(
+fun PokemonFilterSearchField(
     query: String,
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @StringRes placeholder: Int = R.string.caught_screen_search_placeholder,
+    @StringRes helpBody: Int = R.string.search_help_body
 ) {
     var showHelp by remember { mutableStateOf(false) }
-    if (showHelp) SearchHelpDialog(onDismiss = { showHelp = false })
+    if (showHelp) SearchHelpDialog(helpBody = helpBody, onDismiss = { showHelp = false })
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text(stringResource(R.string.caught_screen_search_placeholder)) },
+        placeholder = { Text(stringResource(placeholder)) },
         modifier = modifier,
         singleLine = true,
         shape = RoundedCornerShape(AppSizes.cardCornerRadius),
@@ -199,12 +202,12 @@ private fun PokemonFilterSearchField(
 
 /** How to search like in Pokémon GO, with examples. */
 @Composable
-private fun SearchHelpDialog(onDismiss: () -> Unit) {
+private fun SearchHelpDialog(@StringRes helpBody: Int, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.search_help_title)) },
         text = {
-            val rows = stringResource(R.string.search_help_body).lines().mapNotNull { line ->
+            val rows = stringResource(helpBody).lines().mapNotNull { line ->
                 val colon = line.indexOf(':')
                 if (colon < 0) null else line.take(colon).trim() to line.drop(colon + 1).trim()
             }

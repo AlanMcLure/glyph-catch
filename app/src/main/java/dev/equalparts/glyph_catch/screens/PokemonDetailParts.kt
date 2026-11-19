@@ -58,8 +58,6 @@ import dev.equalparts.glyph_catch.data.Type
 import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.nameRes
 import dev.equalparts.glyph_catch.data.usesFemaleSprite
-import dev.equalparts.glyph_catch.screens.garden.AnimatedPokemonSprite
-import dev.equalparts.glyph_catch.screens.garden.FriendshipHearts
 
 /** The usual colours of each type in the games, for the background behind the sprite. */
 internal fun Type.color(): Color = when (this) {

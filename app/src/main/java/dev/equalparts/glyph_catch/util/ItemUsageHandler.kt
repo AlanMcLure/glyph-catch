@@ -90,7 +90,7 @@ private suspend fun applyEvolutionItem(
     preferencesManager.dailyStats.add(Stat.EVOLUTIONS)
 
     val updated = pokemonDao.getCaughtPokemon(refreshed.id) ?: refreshed.copy(speciesId = target.id)
-    preferencesManager.enqueueEvolutionNotification(refreshed.speciesId, target.id, refreshed.isShiny)
+    preferencesManager.enqueueEvolutionNotification(refreshed.speciesId, target.id, refreshed.isShiny, refreshed.id)
 
     ItemUsageResult.Success(
         updatedPokemon = updated,
@@ -136,7 +136,12 @@ private suspend fun applyRareCandy(
         if (evolution != null) {
             pokemonDao.evolveCaught(pokemon, evolution.id, newLevel, 0)
             preferencesManager.dailyStats.add(Stat.EVOLUTIONS)
-            preferencesManager.enqueueEvolutionNotification(pokemon.speciesId, evolution.id, pokemon.isShiny)
+            preferencesManager.enqueueEvolutionNotification(
+                pokemon.speciesId,
+                evolution.id,
+                pokemon.isShiny,
+                pokemon.id
+            )
             pokemon = pokemonDao.getCaughtPokemon(pokemon.id) ?: pokemon.copy(speciesId = evolution.id)
         }
     }

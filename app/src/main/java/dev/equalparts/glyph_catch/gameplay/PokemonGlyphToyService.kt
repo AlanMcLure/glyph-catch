@@ -11,24 +11,18 @@ import androidx.core.content.edit
 import com.nothing.ketchum.GlyphMatrixFrame
 import com.nothing.ketchum.GlyphMatrixManager
 import com.nothing.ketchum.GlyphMatrixObject
-import dev.equalparts.glyph_catch.Features
 import dev.equalparts.glyph_catch.data.CaughtPokemon
 import dev.equalparts.glyph_catch.data.Eggs
 import dev.equalparts.glyph_catch.data.Forms
 import dev.equalparts.glyph_catch.data.FriendshipDaily
 import dev.equalparts.glyph_catch.data.FriendshipRules
-import dev.equalparts.glyph_catch.data.GardenCatalog
-import dev.equalparts.glyph_catch.data.GardenStore
-import dev.equalparts.glyph_catch.data.GardenZone
 import dev.equalparts.glyph_catch.data.Item
 import dev.equalparts.glyph_catch.data.PokedexData
 import dev.equalparts.glyph_catch.data.Pokemon
 import dev.equalparts.glyph_catch.data.PokemonDatabase
 import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.data.Stat
-import dev.equalparts.glyph_catch.data.Type
 import dev.equalparts.glyph_catch.data.creditTeamFriendship
-import dev.equalparts.glyph_catch.data.types
 import dev.equalparts.glyph_catch.debug.DebugCaptureManager
 import dev.equalparts.glyph_catch.debug.DebugExceptionTracker
 import dev.equalparts.glyph_catch.debug.DebugSnapshot
@@ -51,7 +45,6 @@ import dev.equalparts.glyph_catch.widget.widgetJson
 import java.util.Calendar
 import java.util.Locale
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.random.Random
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,6 +56,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -160,7 +155,7 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
         animationWakeLock = powerManager?.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             WAKE_LOCK_TAG
-        )
+        )?.apply { setReferenceCounted(false) }
 
         debugCapture = DebugCaptureManager.shared(applicationContext)
 
@@ -288,13 +283,9 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
         if (!gameplayContext.phone.isInteractive) {
             preferencesManager.dailyStats.add(Stat.MINUTES)
         }
-        if (gameplayContext.phone.countsAsAway) {
-            coroutineScope?.launch { advanceEggs() }
-            // Berries in the Garden grow like Eggs hatch: while the phone is put away
-            if (Features.TOWN) coroutineScope?.launch { growGarden() }
-        } else {
-            spawnHistory.resetAfterScreenOn()
-        }
+        // Eggs are timers: they hatch on time whether the phone is in use or not
+        coroutineScope?.launch { advanceEggs() }
+        if (!gameplayContext.phone.countsAsAway) spawnHistory.resetAfterScreenOn()
 
         if (gameplayContext.sleep.hasSleepBonus) {
             val now = System.currentTimeMillis()
@@ -321,7 +312,8 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
             trainerPokedexCount = gameplayContext.trainer.pokedexCount,
             isBedtime = gameplayContext.sleep.isBedtime,
             fastSpawns = preferencesManager.playWhileInUse,
-            incense = gameplayContext.trainer.isUsingItem(Item.INCENSE)
+            incense = gameplayContext.trainer.isUsingItem(Item.INCENSE),
+            pace = preferencesManager.spawnPace.factor
         )
 
         if (!spawnContext.phoneIsInteractive) {
@@ -430,44 +422,20 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
         preferencesManager.enqueueEvolutionNotification(
             previousSpeciesId = species.id,
             newSpeciesId = target.id,
-            shiny = pokemon.isShiny
+            shiny = pokemon.isShiny,
+            pokemonId = pokemon.id
         )
     }
 
     /**
-     * The town works while the phone is locked: berries grow in the Orchard (watered by its
-     * Water-types, faster with a Grass-type) and the Hot Springs warm up their residents'
-     * friendship and, with anyone there, Eggs hatch half as fast again.
-     */
-    private suspend fun growGarden() {
-        val store = GardenStore.get(this)
-        val state = store.state.value
-        val dao = db.pokemonDao()
-        val minute = System.currentTimeMillis() / 60_000L
-        val orchard = state.residents(GardenZone.ORCHARD).mapNotNull { dao.getCaughtPokemon(it) }
-        store.grow(
-            waterer = orchard.any(GardenCatalog::waters),
-            fast = orchard.any { Pokemon[it.speciesId]?.types?.contains(Type.GRASS) == true },
-            minute = minute
-        )
-        val springs = state.residents(GardenZone.SPRINGS).mapNotNull { dao.getCaughtPokemon(it) }
-        if (springs.isEmpty()) return
-        val daily = FriendshipDaily(this)
-        springs.forEach { if (daily.springsMinute(it.id)) dao.addFriendship(it.id, 1) }
-        if (minute % 2 == 0L) db.eggDao().advanceEggs()
-    }
-
-    /**
-     * Eggs advance one minute per locked minute; hatched ones appear on the Glyph Matrix.
+     * Eggs warm up with the time passed, even while the toy was off; hatched ones appear on the
+     * Glyph Matrix.
      */
     private suspend fun advanceEggs() {
-        val eggDao = db.eggDao()
-        eggDao.advanceEggs()
-        val hatched = eggDao.getHatched()
+        val hatched = Eggs.warmUp(db, preferencesManager)
         if (hatched.isEmpty()) return
         val eggPool = spawnEngine.rules.pools.first { it.name == Eggs.POOL_NAME }
         hatched.forEach { egg ->
-            eggDao.deleteEgg(egg.id)
             val species = Pokemon[egg.speciesId] ?: return@forEach
             addToQueue(
                 SpawnResult(
@@ -475,7 +443,7 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
                     pool = eggPool,
                     screenOffDurationMinutes = gameplayContext.phone.minutesOff,
                     spawnedAtMillis = System.currentTimeMillis(),
-                    isShiny = Random.nextInt(Eggs.shinyOdds()) == 0
+                    isShiny = egg.isShiny ?: Eggs.rollShiny()
                 )
             )
         }
@@ -806,18 +774,18 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
     }
 
     /**
-     * Acquires a wake lock to prevent animation freezes.
+     * Acquires a wake lock to prevent animation freezes. Every animation renews its timeout:
+     * otherwise, after a few quick catches, the first one's timeout ran out halfway through the
+     * last and the phone fell asleep with the Poké Ball stuck on the Glyph Matrix.
      */
     private fun acquireAnimationWakeLock() {
         val wakeLock = animationWakeLock ?: return
         synchronized(animationWakeLockMutex) {
-            if (activeAnimationWakeLockHolders == 0) {
-                val acquired = runCatching { wakeLock.acquire(WAKE_LOCK_TIMEOUT_MS) }
-                    .onFailure { error -> Log.w(TAG, "Unable to acquire animation wake lock", error) }
-                    .isSuccess
-                if (!acquired) {
-                    return
-                }
+            val acquired = runCatching { wakeLock.acquire(WAKE_LOCK_TIMEOUT_MS) }
+                .onFailure { error -> Log.w(TAG, "Unable to acquire animation wake lock", error) }
+                .isSuccess
+            if (!acquired) {
+                return
             }
             activeAnimationWakeLockHolders++
         }
@@ -967,12 +935,11 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
     companion object {
         private const val TAG = "PokemonGlyphToy"
 
-        private const val MAX_QUEUE_SIZE = 9
         private const val HIDDEN_MAX_QUEUE_SIZE = 15
 
         /** The hidden "play while in use" setting brings more Pokémon, so more can wait. */
         fun maxQueueSize(preferences: PreferencesManager): Int =
-            if (preferences.playWhileInUse) HIDDEN_MAX_QUEUE_SIZE else MAX_QUEUE_SIZE
+            if (preferences.playWhileInUse) HIDDEN_MAX_QUEUE_SIZE else preferences.maxWaiting
         private const val PREFS_NAME = "pokemon_glyph_toy_prefs"
         private const val PREFS_KEY_SPAWN_QUEUE = "spawn_queue"
 
@@ -1009,16 +976,19 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
             }
         }
 
-        /** True while a Poké Ball thrown from the app or a widget is still in the air. */
+        /** True while a catch from the app or a widget is playing on the Glyph Matrix. */
         val throwing = MutableStateFlow(false)
+
+        /** Catches from the saved queue one at a time, so two quick taps never take the same one. */
+        private val savedQueueMutex = Mutex()
 
         /** The last Pokémon caught with a Poké Ball from the app or a widget. */
         val lastThrowCatch = MutableStateFlow<CaughtPokemon?>(null)
 
         /**
          * Throws a Poké Ball at the first Pokémon waiting, from the app or a widget. With the phone
-         * in use the Glyph Toy is off, so the catch plays on the Glyph Matrix from here. Throws made
-         * while one is still in the air are ignored.
+         * in use the Glyph Toy is off, so the catch plays on the Glyph Matrix from here. Every tap
+         * catches right away; the Glyph Matrix shows one catch at a time and skips the rest.
          */
         fun catchOne(context: Context) {
             val service = instance
@@ -1026,12 +996,12 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
                 service.coroutineScope?.launch { service.catchFirst() }
                 return
             }
-            if (!throwing.compareAndSet(expect = false, update = true)) return
             CatchRecorder.scope.launch {
+                val caught = savedQueueMutex.withLock { CatchRecorder.catchFromSavedQueue(context) } ?: return@launch
+                lastThrowCatch.value = caught
+                WidgetUpdater.refresh(context)
+                if (!throwing.compareAndSet(expect = false, update = true)) return@launch
                 try {
-                    val caught = CatchRecorder.catchFromSavedQueue(context) ?: return@launch
-                    lastThrowCatch.value = caught
-                    WidgetUpdater.refresh(context)
                     AppMatrix.playCatch(context, caught)
                 } finally {
                     throwing.value = false

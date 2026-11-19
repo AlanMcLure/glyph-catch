@@ -53,5 +53,10 @@ fun canEvolveInto(targetId: Int, gender: Gender): Boolean =
     GENDERED_EVOLUTIONS[targetId]?.let { gender == Gender.UNKNOWN || it == gender } ?: true
 
 /** Whether it should use its species' female sprite, like Pikachu's heart-shaped tail. */
-fun CaughtPokemon.usesFemaleSprite(context: Context): Boolean =
-    gender(context) == Gender.FEMALE && PokedexData.entry(context, speciesId)?.femaleSprite == true
+fun CaughtPokemon.usesFemaleSprite(context: Context): Boolean = usesFemaleSprite(context, id, speciesId)
+
+/** The same for the Pokémon with this id as [speciesId], when only its id is at hand. */
+fun usesFemaleSprite(context: Context, pokemonId: String, speciesId: Int): Boolean {
+    val entry = PokedexData.entry(context, speciesId) ?: return false
+    return entry.femaleSprite && Gender.roll(pokemonId, entry.genderRate) == Gender.FEMALE
+}

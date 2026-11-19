@@ -103,6 +103,7 @@ object HiddenCatchUp {
     class Worker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
             PokedexData.init(applicationContext)
+            EggCatchUp.run(applicationContext)
             run(applicationContext)
             return Result.success()
         }

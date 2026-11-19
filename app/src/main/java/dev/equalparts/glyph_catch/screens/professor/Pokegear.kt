@@ -149,7 +149,15 @@ private fun NpcEventHost(db: PokemonDatabase, preferencesManager: PreferencesMan
     if (pokedexCount < 0 || totalCaught < 0) return
     val inBag = inventory.mapNotNull { Item.entries.getOrNull(it.itemId) }.toSet()
     val caughtEver = totalCaught + preferencesManager.releasedCount
-    val event = NpcEvents.pending(caughtEver, pokedexCount, inBag, preferencesManager.breederMet)
+    val event = NpcEvents.pending(
+        caughtEver,
+        pokedexCount,
+        inBag,
+        preferencesManager.breederMet,
+        preferencesManager.collectorMet,
+        // Never in hidden mode: those stats aren't sent anyway
+        preferencesManager.developerCalled || preferencesManager.playWhileInUse
+    )
         .firstOrNull { it !in finished } ?: return
 
     val context = LocalContext.current
@@ -177,6 +185,7 @@ fun PokegearScreen(db: PokemonDatabase, preferencesManager: PreferencesManager, 
         Professor.entries.filter { it in known || it in waiting }
     }
     var calling by remember { mutableStateOf<Professor?>(null) }
+    var callingCollector by remember { mutableStateOf(false) }
     var giftCall by remember { mutableStateOf(false) }
     var finished by remember { mutableStateOf(emptySet<ProfessorEvent>()) }
     val context = LocalContext.current
@@ -197,7 +206,16 @@ fun PokegearScreen(db: PokemonDatabase, preferencesManager: PreferencesManager, 
                     calling = professor
                 })
             }
+            // Once he has introduced himself, the Collector trades Eggs for the stones that pile up
+            if (preferencesManager.collectorMet) {
+                item { CollectorContactCard(onCall = { callingCollector = true }) }
+            }
         }
+    }
+
+    if (callingCollector) {
+        CollectorCall(db, preferencesManager, onClose = { callingCollector = false })
+        return
     }
 
     val professor = calling ?: return

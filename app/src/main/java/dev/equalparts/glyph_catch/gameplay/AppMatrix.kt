@@ -2,6 +2,7 @@ package dev.equalparts.glyph_catch.gameplay
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.PowerManager
 import android.util.Log
 import com.nothing.ketchum.Glyph
 import com.nothing.ketchum.GlyphMatrixManager
@@ -29,6 +30,7 @@ object AppMatrix {
     private const val FIRST_FRAME_MS = 500L
     private const val SHOW_CAUGHT_MS = 2500L
     private const val SHAKE_MS = 350L
+    private const val WAKE_LOCK_MS = 10_000L
 
     private val mutex = Mutex()
 
@@ -40,6 +42,10 @@ object AppMatrix {
     suspend fun playCatch(context: Context, caught: CaughtPokemon) = withContext(Dispatchers.Default) {
         mutex.withLock {
             isPlaying = true
+            // Locking the phone mid-catch would otherwise freeze the animation until it wakes up
+            val wakeLock = context.applicationContext.getSystemService(PowerManager::class.java)
+                ?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "glyphcatch:app_matrix")
+                ?.apply { runCatching { acquire(WAKE_LOCK_MS) } }
             try {
                 val app = context.applicationContext
                 val gmm = connect(app) ?: return@withLock
@@ -56,6 +62,7 @@ object AppMatrix {
                 }
             } finally {
                 isPlaying = false
+                wakeLock?.takeIf { it.isHeld }?.let { runCatching { it.release() } }
             }
         }
     }

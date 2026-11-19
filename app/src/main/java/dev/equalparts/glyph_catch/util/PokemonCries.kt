@@ -13,7 +13,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * Pokémon cries as they sounded up to Black and White, from PokeAPI's cries. Like the Garden's
+ * Pokémon cries as they sounded up to Black and White, from PokeAPI's cries. Like the animated
  * sprites, each one is downloaded the first time it's played and kept on the phone.
  */
 object PokemonCries {

@@ -2,8 +2,11 @@ package dev.equalparts.glyph_catch.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +23,7 @@ import dev.equalparts.glyph_catch.data.PreferencesManager
  * The settings revealed by tapping the version seven times.
  */
 @Composable
-fun HiddenSettingsScreen(modifier: Modifier) {
+fun HiddenSettingsScreen(modifier: Modifier, onHide: () -> Unit = {}) {
     val context = LocalContext.current
     val prefs = remember { PreferencesManager(context) }
     var playWhileInUse by remember { mutableStateOf(prefs.playWhileInUse) }
@@ -71,5 +74,16 @@ fun HiddenSettingsScreen(modifier: Modifier) {
                 prefs.encounterCard = it
             }
         )
+
+        // What's switched on here keeps working; seven taps on the version bring the section back
+        OutlinedButton(
+            onClick = {
+                prefs.hiddenSettingsUnlocked = false
+                onHide()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.hidden_settings_hide))
+        }
     }
 }

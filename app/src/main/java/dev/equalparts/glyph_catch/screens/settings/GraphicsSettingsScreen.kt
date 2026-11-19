@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -56,6 +57,7 @@ import dev.equalparts.glyph_catch.AppCard
 import dev.equalparts.glyph_catch.AppSizes
 import dev.equalparts.glyph_catch.R
 import dev.equalparts.glyph_catch.data.PreferencesManager
+import dev.equalparts.glyph_catch.data.SpawnPace
 import dev.equalparts.glyph_catch.gameplay.WaitingNotification
 import dev.equalparts.glyph_catch.widget.Achievement
 import dev.equalparts.glyph_catch.widget.AchievementState
@@ -78,6 +80,10 @@ fun GraphicsSettingsScreen(modifier: Modifier) {
         modifier = modifier.verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(AppSizes.spacingLarge)
     ) {
+        // The hidden setting keeps its own pace and queue, so these are greyed out while it's on
+        val ownPace = !prefs.playWhileInUse
+        SpawnPaceCard(prefs, enabled = ownPace)
+        MaxWaitingCard(prefs, enabled = ownPace)
         IdleDisplayCard(prefs)
 
         var notify by remember { mutableStateOf(prefs.waitingNotification && WaitingNotification.canPost(context)) }
@@ -149,6 +155,86 @@ fun AppearanceSettingsScreen(modifier: Modifier) {
         )
     }
 }
+
+/**
+ * How often Pokémon appear: from the usual pace to one every couple of hours.
+ */
+@Composable
+private fun SpawnPaceCard(prefs: PreferencesManager, enabled: Boolean) {
+    var pace by remember { mutableStateOf(prefs.spawnPace) }
+    SettingsSliderCard(
+        title = stringResource(R.string.settings_pace_title),
+        subtitle = stringResource(R.string.settings_pace_subtitle),
+        value = stringResource(
+            R.string.settings_pace_value,
+            stringResource(pace.label),
+            shortDuration(pace.averageMinutes)
+        ),
+        position = pace.ordinal,
+        positions = SpawnPace.entries.size,
+        enabled = enabled,
+        onChange = {
+            pace = SpawnPace.entries[it]
+            prefs.spawnPace = pace
+        }
+    )
+}
+
+/**
+ * How many Pokémon can wait on the Glyph Matrix at once.
+ */
+@Composable
+private fun MaxWaitingCard(prefs: PreferencesManager, enabled: Boolean) {
+    var max by remember { mutableIntStateOf(prefs.maxWaiting) }
+    SettingsSliderCard(
+        title = stringResource(R.string.settings_max_waiting_title),
+        subtitle = stringResource(R.string.settings_max_waiting_subtitle),
+        value = max.toString(),
+        position = max - 1,
+        positions = PreferencesManager.MAX_WAITING,
+        enabled = enabled,
+        onChange = {
+            max = it + 1
+            prefs.maxWaiting = max
+        }
+    )
+}
+
+@Composable
+private fun SettingsSliderCard(
+    title: String,
+    subtitle: String,
+    value: String,
+    position: Int,
+    positions: Int,
+    enabled: Boolean,
+    onChange: (Int) -> Unit
+) {
+    AppCard(modifier = Modifier.fillMaxWidth().alpha(if (enabled) 1f else DISABLED_ALPHA)) {
+        Column(modifier = Modifier.padding(AppSizes.spacingLarge)) {
+            Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(AppSizes.spacingTiny))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(AppSizes.spacingMedium))
+            Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Slider(
+                value = position.toFloat(),
+                onValueChange = { onChange(it.roundToInt().coerceIn(0, positions - 1)) },
+                enabled = enabled,
+                valueRange = 0f..(positions - 1).toFloat(),
+                steps = (positions - 2).coerceAtLeast(0)
+            )
+        }
+    }
+}
+
+private const val DISABLED_ALPHA = 0.45f
+
+private fun shortDuration(minutes: Int): String = if (minutes < 60) "${minutes}m" else "${minutes / 60}h"
 
 /**
  * What the Glyph Matrix shows while no wild Pokémon is waiting.

@@ -73,6 +73,45 @@ class PokemonSearchTest {
         assertEquals(pc.size - 3, search("!water").size)
     }
 
+    private val categories = mapOf(11 to "Cocoon Pokémon", 14 to "Cocoon Pokémon", 25 to "Mouse Pokémon")
+
+    private fun dex(query: String, shinies: Set<Int> = emptySet()) =
+        (1..649).filter(PokemonSearch.speciesMatcher(query, shinies, categoryOf = { categories[it] })).toSet()
+
+    @Test
+    fun `Pokédex names, categories and numbers`() {
+        assertEquals(setOf(11, 14), dex("cocoon"))
+        assertEquals(setOf(25), dex("25"))
+        assertEquals(setOf(25), dex("mouse&pika"))
+        assertEquals((1..151).toSet(), dex("1-151"))
+    }
+
+    @Test
+    fun `Pokédex types, keywords and families`() {
+        assertEquals(true, 6 in dex("fire") && 7 !in dex("fire"))
+        assertEquals(setOf(25), dex("shiny", shinies = setOf(25)))
+        assertEquals(Eggs.hatchHours.keys, dex("egg"))
+        assertEquals(true, 151 in dex("mythical") && 150 !in dex("mythical"))
+        assertEquals(setOf(172, 25, 26), dex("+pikachu"))
+        assertEquals(setOf(10, 11, 12, 13, 14, 15), dex("+cocoon"))
+        assertEquals(true, 6 !in dex("fire&!flying") && 4 in dex("fire&!flying"))
+    }
+
+    @Test
+    fun `only number searches count as number searches`() {
+        assertEquals(true, PokemonSearch.isNumberQuery("25"))
+        assertEquals(true, PokemonSearch.isNumberQuery("1-151, 200"))
+        assertEquals(false, PokemonSearch.isNumberQuery("25&fire"))
+        assertEquals(false, PokemonSearch.isNumberQuery("  "))
+    }
+
+    @Test
+    fun `asking for shinies shows them`() {
+        assertEquals(true, PokemonSearch.asksForShiny("fire & shiny"))
+        assertEquals(false, PokemonSearch.asksForShiny("!shiny"))
+        assertEquals(false, PokemonSearch.asksForShiny("fire"))
+    }
+
     @Test
     fun `accents don't matter`() {
         assertEquals(PokemonSearch.normalize("electrico"), PokemonSearch.normalize("Eléctrico"))

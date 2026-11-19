@@ -155,6 +155,18 @@ private fun lastWeek(preferencesManager: PreferencesManager): List<DayStats> {
 @Composable
 fun formatDuration(minutes: Int): String = stringResource(R.string.stats_duration, minutes / 60, minutes % 60)
 
+/** Time left, as short as it gets: 45m, 1h 32m, 1d 3h 45m. */
+fun formatTimeLeft(minutes: Int): String {
+    val days = minutes / (24 * 60)
+    val hours = minutes / 60 % 24
+    val mins = minutes % 60
+    return buildList {
+        if (days > 0) add("${days}d")
+        if (days > 0 || hours > 0) add("${hours}h")
+        add("${mins}m")
+    }.joinToString(" ")
+}
+
 @Composable
 private fun dayLabel(date: LocalDate): String = if (date == LocalDate.now()) {
     stringResource(R.string.stats_today)

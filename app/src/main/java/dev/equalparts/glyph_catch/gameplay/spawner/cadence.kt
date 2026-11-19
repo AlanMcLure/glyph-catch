@@ -101,7 +101,8 @@ class SpawnCadenceController(private val spawnEngine: SpawnRulesEngine, private 
             }
         }
 
-        val minutes = if (context.incense) minutesAccumulated * 2 else minutesAccumulated
+        // A slower pace stretches the minutes; the Incense still halves them
+        val minutes = minutesAccumulated * (if (context.incense) 2.0 else 1.0) / context.pace
         val baseChance = screenOffChanceRules
             .lastOrNull { minutes >= it.minMinutesAccumulated }
             ?.baseChance
@@ -262,7 +263,9 @@ data class SpawnContext(
     /** One Pokémon every few minutes, for the hidden "play while in use" setting. */
     val fastSpawns: Boolean = false,
     /** An Incense is burning: Pokémon come twice as fast. */
-    val incense: Boolean = false
+    val incense: Boolean = false,
+    /** The chosen spawn pace: how much longer than usual Pokémon take to appear. */
+    val pace: Double = 1.0
 )
 
 data class SpawnDecision(val spawn: SpawnResult?, val debug: SpawnDecisionDebug)

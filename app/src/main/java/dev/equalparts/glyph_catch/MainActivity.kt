@@ -23,8 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -32,16 +34,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.equalparts.glyph_catch.components.PokemonSearch
+import dev.equalparts.glyph_catch.data.AnonymousStats
 import dev.equalparts.glyph_catch.data.PokedexData
 import dev.equalparts.glyph_catch.data.PokemonDatabase
 import dev.equalparts.glyph_catch.data.PokemonNames
 import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.debug.DebugExceptionTracker
+import dev.equalparts.glyph_catch.gameplay.EggCatchUp
 import dev.equalparts.glyph_catch.gameplay.HiddenCatchUp
 import dev.equalparts.glyph_catch.navigation.AppNavigationGraph
 import dev.equalparts.glyph_catch.navigation.AppScreen
-import dev.equalparts.glyph_catch.screens.garden.GardenSprites
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -58,6 +62,15 @@ class MainActivity : ComponentActivity() {
 
         val preferences = PreferencesManager(this)
         HiddenCatchUp.schedule(this, preferences.playWhileInUse)
+        // Eggs hatch on time even with the Glyph Toy off, and Home shows them going
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    EggCatchUp.run(applicationContext)
+                    delay(EGG_CHECK_MILLIS)
+                }
+            }
+        }
 
         setContent {
             AppTheme {
@@ -75,13 +88,11 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         lifecycleScope.launch {
             HiddenCatchUp.run(applicationContext)
+            AnonymousStats.sendIfDue(applicationContext)
             withContext(Dispatchers.IO) {
                 PreferencesManager(
                     applicationContext
                 ).forgetMissingPokemon(PokemonDatabase.getInstance(applicationContext))
-            }
-            if (Features.TOWN) {
-                GardenSprites.prefetch(applicationContext, PokemonDatabase.getInstance(applicationContext))
             }
         }
     }
@@ -209,7 +220,8 @@ private fun AppScreen.bottomNavLabel(): String = when (this) {
     AppScreen.Home -> stringResource(R.string.nav_home)
     AppScreen.Pokedex -> stringResource(R.string.nav_pokedex)
     AppScreen.Caught -> stringResource(R.string.nav_caught)
-    AppScreen.Garden -> stringResource(R.string.garden_title)
     AppScreen.Inventory -> stringResource(R.string.nav_bag)
     AppScreen.Settings -> stringResource(R.string.nav_settings)
 }
+
+private const val EGG_CHECK_MILLIS = 60_000L

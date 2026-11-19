@@ -26,7 +26,6 @@ import dev.equalparts.glyph_catch.screens.PokemonSelectionScreen
 import dev.equalparts.glyph_catch.screens.RumorsScreen
 import dev.equalparts.glyph_catch.screens.SettingsScreen
 import dev.equalparts.glyph_catch.screens.StatsScreen
-import dev.equalparts.glyph_catch.screens.garden.GardenScreen
 import dev.equalparts.glyph_catch.screens.inventory.InventoryItemDetailScreen
 import dev.equalparts.glyph_catch.screens.professor.PokegearScreen
 import dev.equalparts.glyph_catch.util.TrainerTipsProvider
@@ -76,13 +75,6 @@ fun AppNavigationGraph(navController: NavHostController, db: PokemonDatabase) {
                 onStatsClick = { navController.navigate("home/stats") },
                 onMissionsClick = { navController.navigate("home/missions") },
                 onPokegearClick = { navController.navigate("home/pokegear") }
-            )
-        }
-        composable(AppScreen.Garden.route) {
-            GardenScreen(
-                db = db,
-                preferencesManager = preferencesManager,
-                onPokemonClick = { navController.navigateToCaughtDetail(it.id) }
             )
         }
         composable("home/pokegear") {
@@ -151,7 +143,8 @@ fun AppNavigationGraph(navController: NavHostController, db: PokemonDatabase) {
                     db = db,
                     preferencesManager = preferencesManager,
                     pokemonId = pokemonId,
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onOpenPokedex = { navController.navigate("pokedex/entry/$it") }
                 )
             }
         }
@@ -194,6 +187,9 @@ fun AppNavigationGraph(navController: NavHostController, db: PokemonDatabase) {
                 },
                 onItemUsed = {
                     navController.popBackStack(AppScreen.Home.route, inclusive = false)
+                },
+                onItemGone = {
+                    if (navController.currentBackStackEntry == backStackEntry) navController.navigateUp()
                 },
                 onBackClick = { navController.navigateUp() }
             )

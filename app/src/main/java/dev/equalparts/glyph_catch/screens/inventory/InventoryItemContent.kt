@@ -13,8 +13,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,6 +43,7 @@ import dev.equalparts.glyph_catch.data.effectDurationMinutes
 import dev.equalparts.glyph_catch.data.isKeyItem
 import dev.equalparts.glyph_catch.data.isUsedUp
 import dev.equalparts.glyph_catch.data.nameRes
+import dev.equalparts.glyph_catch.data.stackedExpiresAt
 import dev.equalparts.glyph_catch.ndotFontFamily
 import dev.equalparts.glyph_catch.screens.professor.ownedItems
 import dev.equalparts.glyph_catch.util.EventHelpers
@@ -143,28 +146,55 @@ private fun TimedItemActions(db: PokemonDatabase, item: Item, itemName: String, 
     val status by rememberActiveItemStatus(db, item)
     val scope = rememberCoroutineScope()
     var isActivating by remember { mutableStateOf(false) }
+    // Used-up items (Incense) stack: light several, or more while one burns
+    val stacks = item.isUsedUp
+    var count by remember(quantity) { mutableIntStateOf(1) }
+    if (count > quantity) count = quantity.coerceAtLeast(1)
+
+    if (stacks && quantity > 1) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(AppSizes.spacingSmall, Alignment.CenterHorizontally)
+        ) {
+            TextButton(onClick = { count = 1 }, enabled = count > 1) { Text(stringResource(R.string.rare_candy_min)) }
+            RepeatingButton(label = "−", enabled = count > 1) { count = (count - 1).coerceAtLeast(1) }
+            Text(text = "×$count", style = MaterialTheme.typography.titleMedium)
+            RepeatingButton(label = "+", enabled = count < quantity) { count = (count + 1).coerceAtMost(quantity) }
+            TextButton(onClick = { count = quantity }, enabled = count < quantity) {
+                Text(stringResource(R.string.rare_candy_max))
+            }
+        }
+    }
+    if (stacks && status.isActive && quantity > 0) {
+        Text(
+            text = stringResource(R.string.incense_adds_up),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 
     Button(
         onClick = {
-            if (!status.isActive) {
+            if (stacks || !status.isActive) {
                 scope.launch {
                     isActivating = true
                     try {
-                        activateItem(db, item, durationMinutes)
+                        activateItem(db, item, durationMinutes, if (stacks) count else 1)
                     } finally {
                         isActivating = false
                     }
                 }
             }
         },
-        enabled = !status.isActive && !isActivating && (!item.isUsedUp || quantity > 0),
+        enabled = (stacks || !status.isActive) && !isActivating && (!item.isUsedUp || quantity > 0),
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = if (status.isActive) {
-                stringResource(R.string.inventory_item_using_button, itemName)
-            } else {
-                stringResource(R.string.inventory_item_use_button, itemName)
+            text = when {
+                stacks && quantity > 0 -> stringResource(R.string.incense_count, count, count * durationMinutes / 60)
+                status.isActive -> stringResource(R.string.inventory_item_using_button, itemName)
+                else -> stringResource(R.string.inventory_item_use_button, itemName)
             }
         )
     }
@@ -233,19 +263,20 @@ private fun UseOnPokemonButton(itemName: String, quantity: Int, onClick: () -> U
     }
 }
 
-private suspend fun activateItem(db: PokemonDatabase, item: Item, durationMinutes: Int) {
+private suspend fun activateItem(db: PokemonDatabase, item: Item, durationMinutes: Int, count: Int = 1) {
     val now = System.currentTimeMillis()
-    val expiresAt = now + durationMinutes * 60_000L
     withContext(Dispatchers.IO) {
         if (item in LURES) {
             LURES.filter { it != item }.forEach { db.activeItemDao().deactivateItem(it.ordinal) }
         }
-        if (item.isUsedUp) db.inventoryDao().useItem(item.ordinal)
+        // Used-up items add their time to what's already burning; the rest start over
+        val burning = if (item.isUsedUp) db.activeItemDao().getActiveItem(item.ordinal, now) else null
+        if (item.isUsedUp) db.inventoryDao().useItems(item.ordinal, count)
         db.activeItemDao().activateItem(
             ActiveItem(
                 itemId = item.ordinal,
-                activatedAt = now,
-                expiresAt = expiresAt
+                activatedAt = burning?.activatedAt ?: now,
+                expiresAt = stackedExpiresAt(burning?.expiresAt, now, durationMinutes, count)
             )
         )
     }

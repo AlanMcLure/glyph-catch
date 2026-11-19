@@ -11,6 +11,9 @@ import dev.equalparts.glyph_catch.data.PreferencesManager
 object GlyphDevice {
     val isPhone4aPro: Boolean get() = runCatching { Common.is25111p() }.getOrDefault(false)
 
+    /** Phone 3 or Phone (4a) Pro: the phones with a Glyph Matrix. */
+    val hasGlyphMatrix: Boolean get() = runCatching { Common.is23112() || Common.is25111p() }.getOrDefault(false)
+
     val matrixSize: Int get() = if (isPhone4aPro) 13 else 25
 
     /** The (4a) Pro way of playing, also available on other phones from the hidden settings to try it. */

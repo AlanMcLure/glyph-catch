@@ -32,7 +32,7 @@
     <string name="home_super_rod_new_banner">Neue Angel</string>
     <string name="home_super_rod_new_badge">Neu</string>
     <string name="home_super_rod_active_banner">%1$s im Einsatz</string>
-    <string name="home_super_rod_active_badge">Noch %1$d Min.</string>
+    <string name="home_super_rod_active_badge">Noch %1$s</string>
     <string name="home_repel_new_banner">Schutz freigeschaltet</string>
     <string name="home_repel_new_badge">Neu</string>
     <string name="home_well_rested_banner">Ausgeschlafen: mehr seltene Pokémon</string>
@@ -163,8 +163,8 @@
     <string name="form_trash">Lumpenumhang</string>
     <string name="form_west">Westliches Meer</string>
     <string name="form_east">Östliches Meer</string>
-    <string name="settings_backup_title">Sicherung</string>
-    <string name="settings_section_backup_description">Fortschritt in einer Datei speichern oder wiederherstellen</string>
+    <string name="settings_backup_title">Daten &amp; Datenschutz</string>
+    <string name="settings_section_backup_description">Fortschritt sichern und entscheiden, ob du anonyme Statistiken teilst</string>
     <string name="settings_backup_export_title">Fortschritt exportieren</string>
     <string name="settings_backup_export_description">Speichert deine Pokémon, den Pokédex, den Beutel und die Einstellungen in einer Datei. Bewahre sie sicher auf oder übertrage sie auf ein anderes Handy.</string>
     <string name="settings_backup_export_button">In Datei exportieren</string>
@@ -219,8 +219,6 @@
     <string name="inventory_empty_title">Noch keine Items gefunden</string>
     <string name="inventory_empty_subtitle">Fange mehr Pokémon, um nützliche Ausrüstung zu entdecken.</string>
     <string name="inventory_item_title">ITEM-DETAILS</string>
-    <string name="inventory_item_missing_title">Item nicht gefunden</string>
-    <string name="inventory_item_missing_subtitle">Dieses Item ist nicht mehr verfügbar.</string>
     <string name="inventory_item_effect_duration">Wirkung: %1$d Minuten</string>
     <string name="inventory_item_active_label">Aktiv (noch %1$d Min.)</string>
     <string name="inventory_item_use_button">%1$s verwenden</string>

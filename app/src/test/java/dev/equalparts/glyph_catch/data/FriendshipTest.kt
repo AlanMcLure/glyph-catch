@@ -1,7 +1,5 @@
 package dev.equalparts.glyph_catch.data
 
-import dev.equalparts.glyph_catch.screens.garden.isAsleep
-import dev.equalparts.glyph_catch.screens.garden.residentsOf
 import dev.equalparts.glyph_catch.util.CandyEvolution
 import dev.equalparts.glyph_catch.util.candyEvolution
 import dev.equalparts.glyph_catch.util.findLevelEvolutionTarget
@@ -62,23 +60,5 @@ class FriendshipTest {
         val pichu = pokemon(Pokemon.PICHU.id, level = 5, friendship = 214)
         assertEquals(CandyEvolution.None, candyEvolution(pichu, 2))
         assertEquals(CandyEvolution.Evolves(listOf(Pokemon.PIKACHU)), candyEvolution(pichu, 3))
-    }
-
-    @Test
-    fun `the Garden holds the team and the training partner, seven at most`() {
-        val team = (1..6).map { pokemon(it, id = "t$it") }
-        val partner = pokemon(25, id = "p").copy(isTraining = true)
-        val residents = residentsOf(team + partner, team.map { it.id })
-        assertEquals(team.map { it.id } + "p", residents.map { it.id })
-        assertEquals(6, residentsOf(team + partner.copy(id = "t1"), team.map { it.id }).size)
-    }
-
-    @Test
-    fun `the Garden sleeps for eight hours from your bedtime`() {
-        val bedtime = 23 * 60
-        assertEquals(false, isAsleep(bedtime, LocalTime.of(22, 59)))
-        assertEquals(true, isAsleep(bedtime, LocalTime.of(23, 0)))
-        assertEquals(true, isAsleep(bedtime, LocalTime.of(6, 59)))
-        assertEquals(false, isAsleep(bedtime, LocalTime.of(7, 0)))
     }
 }

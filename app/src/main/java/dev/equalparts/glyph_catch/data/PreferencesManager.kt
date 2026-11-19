@@ -128,6 +128,31 @@ class PreferencesManager(context: Context) {
             PokemonGlyphToyService.refreshIdleDisplay()
         }
 
+    /** How often Pokémon appear: the way it always was unless changed in Settings > Glyph Toy. */
+    var spawnPace: SpawnPace
+        get() = SpawnPace.entries.getOrNull(prefs.getInt(KEY_SPAWN_PACE, 0)) ?: SpawnPace.FAST
+        set(value) = prefs.edit { putInt(KEY_SPAWN_PACE, value.ordinal) }
+
+    /** Whether the developer's call about the anonymous stats has come. */
+    var developerCalled: Boolean
+        get() = prefs.getBoolean(KEY_DEVELOPER_CALLED, false)
+        set(value) = prefs.edit { putBoolean(KEY_DEVELOPER_CALLED, value) }
+
+    /** Anonymous stats, off unless the player turns them on (see [AnonymousStats]). */
+    var shareStats: Boolean
+        get() = prefs.getBoolean(KEY_SHARE_STATS, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHARE_STATS, value) }
+
+    /** When the stats were last sent. */
+    var statsSentAt: Long
+        get() = prefs.getLong(KEY_STATS_SENT_AT, 0)
+        set(value) = prefs.edit { putLong(KEY_STATS_SENT_AT, value) }
+
+    /** How many Pokémon can wait on the Glyph Matrix, up to [MAX_WAITING]. */
+    var maxWaiting: Int
+        get() = prefs.getInt(KEY_MAX_WAITING, MAX_WAITING).coerceIn(1, MAX_WAITING)
+        set(value) = prefs.edit { putInt(KEY_MAX_WAITING, value.coerceIn(1, MAX_WAITING)) }
+
     var glyphToyLowerBrightness: Boolean
         get() = prefs.getBoolean(KEY_GLYPH_TOY_LOWER_BRIGHTNESS, false)
         set(value) = prefs.edit { putBoolean(KEY_GLYPH_TOY_LOWER_BRIGHTNESS, value) }
@@ -227,6 +252,11 @@ class PreferencesManager(context: Context) {
         get() = prefs.getBoolean(KEY_BREEDER_MET, false)
         set(value) = prefs.edit { putBoolean(KEY_BREEDER_MET, value) }
 
+    /** The Collector has explained his trade. */
+    var collectorMet: Boolean
+        get() = prefs.getBoolean(KEY_COLLECTOR_MET, false)
+        set(value) = prefs.edit { putBoolean(KEY_COLLECTOR_MET, value) }
+
     /** Whether a character (clerk, breeder) is a woman in this save; chosen at random once. */
     fun npcVariantFemale(npc: String): Boolean {
         val key = KEY_NPC_VARIANT_PREFIX + npc
@@ -256,6 +286,11 @@ class PreferencesManager(context: Context) {
             WidgetUpdater.refresh(appContext)
             PokemonGlyphToyService.refreshIdleDisplay()
         }
+
+    /** When the Eggs last warmed up (see [Eggs.warmUp]). */
+    var lastEggTickAt: Long
+        get() = prefs.getLong(KEY_LAST_EGG_TICK_AT, 0L)
+        set(value) = prefs.edit { putLong(KEY_LAST_EGG_TICK_AT, value) }
 
     /** When the Glyph Toy last ticked, to make up for the time it was switched off. */
     var lastToyTickAt: Long
@@ -349,11 +384,6 @@ class PreferencesManager(context: Context) {
         get() = prefs.getString(KEY_PLAYER_NAME, null)
         set(value) = prefs.edit { putString(KEY_PLAYER_NAME, value) }
 
-    /** The player's look ([PlayerLook] name). */
-    var playerLook: String?
-        get() = prefs.getString(KEY_PLAYER_LOOK, null)
-        set(value) = prefs.edit { putString(KEY_PLAYER_LOOK, value) }
-
     /** Professor Oak has welcomed the player. */
     var professorIntroSeen: Boolean
         get() = prefs.getBoolean(KEY_PROFESSOR_INTRO_SEEN, false)
@@ -418,10 +448,17 @@ class PreferencesManager(context: Context) {
         }
     }
 
-    fun enqueueEvolutionNotification(previousSpeciesId: Int, newSpeciesId: Int, shiny: Boolean = false) {
+    fun enqueueEvolutionNotification(
+        previousSpeciesId: Int,
+        newSpeciesId: Int,
+        shiny: Boolean = false,
+        pokemonId: String? = null
+    ) {
         synchronized(pendingEvolutionNotificationsLock) {
             val current = getPendingEvolutionNotifications()
-            val updated = mutableListOf(EvolutionNotification(previousSpeciesId, newSpeciesId, shiny)).apply {
+            val updated = mutableListOf(
+                EvolutionNotification(previousSpeciesId, newSpeciesId, shiny, pokemonId = pokemonId)
+            ).apply {
                 addAll(current)
             }
             persistPendingEvolutionNotificationsLocked(updated)
@@ -635,6 +672,13 @@ class PreferencesManager(context: Context) {
         const val IDLE_COMPANION = "companion"
         const val IDLE_NONE = "none"
         private const val KEY_GLYPH_IDLE_DISPLAY = "glyph_idle_display"
+        private const val KEY_SPAWN_PACE = "spawn_pace"
+        private const val KEY_SHARE_STATS = "share_stats"
+        private const val KEY_LAST_EGG_TICK_AT = "last_egg_tick_at"
+        private const val KEY_DEVELOPER_CALLED = "developer_called"
+        private const val KEY_STATS_SENT_AT = "stats_sent_at"
+        private const val KEY_MAX_WAITING = "max_waiting"
+        const val MAX_WAITING = 9
         private const val KEY_COMPANION_ID = "companion_id"
         private const val KEY_IDLE_BEFORE_COMPANION = "glyph_idle_before_companion"
         private const val PREFS_NAME = "glyph_catch_prefs"
@@ -674,8 +718,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_SUPER_REPEL_ACTIVE = "super_repel_active"
         private const val KEY_PROFESSOR_INTRO_SEEN = "professor_intro_seen"
         private const val KEY_PLAYER_NAME = "player_name"
-        private const val KEY_PLAYER_LOOK = "player_look"
         private const val KEY_BREEDER_MET = "breeder_met"
+        private const val KEY_COLLECTOR_MET = "collector_met"
         private const val KEY_CAUGHT_GRID_VIEW = "caught_grid_view"
         private const val KEY_CATCH_COUNTS = "catch_counts"
         private const val KEY_NPC_VARIANT_PREFIX = "npc_variant_female_"

@@ -34,10 +34,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.equalparts.glyph_catch.AppCard
+import dev.equalparts.glyph_catch.AppEmptyState
 import dev.equalparts.glyph_catch.AppScreenHeader
 import dev.equalparts.glyph_catch.AppSizes
 import dev.equalparts.glyph_catch.PokedexSpriteCircle
 import dev.equalparts.glyph_catch.R
+import dev.equalparts.glyph_catch.components.PokemonFilterSearchField
+import dev.equalparts.glyph_catch.components.PokemonSearch
 import dev.equalparts.glyph_catch.data.Pokemon
 import dev.equalparts.glyph_catch.data.PokemonDatabase
 import dev.equalparts.glyph_catch.data.PokemonSpecies
@@ -65,6 +68,7 @@ private enum class PokedexRegion(@StringRes val labelRes: Int, val range: IntRan
 @Composable
 fun PokedexScreen(db: PokemonDatabase, onPokemonClick: (Int) -> Unit = {}, onRumorsClick: () -> Unit = {}) {
     var region by rememberSaveable { mutableStateOf(PokedexRegion.ALL) }
+    var query by rememberSaveable { mutableStateOf("") }
     val caughtSpeciesIds by db.pokemonDao().watchCaughtSpeciesIds().collectAsStateWithLifecycle(emptyList())
     val caughtSpeciesSet = remember(caughtSpeciesIds) {
         caughtSpeciesIds.toSet()
@@ -106,21 +110,51 @@ fun PokedexScreen(db: PokemonDatabase, onPokemonClick: (Int) -> Unit = {}, onRum
             }
         }
 
+        Spacer(modifier = Modifier.height(AppSizes.spacingSmall))
+        PokemonFilterSearchField(
+            query = query,
+            onQueryChange = { query = it },
+            onClearQuery = { query = "" },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = R.string.pokedex_search_placeholder,
+            helpBody = R.string.pokedex_search_help_body
+        )
+
+        // Nothing about unseen species gives them away: only a number search shows them, as "???"
+        val shown = remember(region, query, caughtSpeciesSet, shinySpeciesSet) {
+            if (query.isBlank()) {
+                region.range.toList()
+            } else {
+                val matches = PokemonSearch.speciesMatcher(query, shinySpeciesSet, known = { it in caughtSpeciesSet })
+                val byNumber = PokemonSearch.isNumberQuery(query)
+                region.range.filter { id -> if (id in caughtSpeciesSet) matches(id) else byNumber && matches(id) }
+            }
+        }
+
         Spacer(modifier = Modifier.height(AppSizes.spacingLarge))
-        PokedexGrid(state = state, onPokemonClick = onPokemonClick)
+        if (shown.isEmpty()) {
+            AppEmptyState(primaryText = stringResource(R.string.pokedex_search_empty), secondaryText = query)
+        } else {
+            PokedexGrid(
+                state = state,
+                ids = shown,
+                showShiny = PokemonSearch.asksForShiny(query),
+                onPokemonClick = onPokemonClick
+            )
+        }
     }
 }
 
 @Composable
-private fun PokedexGrid(state: PokedexScreenState, onPokemonClick: (Int) -> Unit) {
+private fun PokedexGrid(state: PokedexScreenState, ids: List<Int>, showShiny: Boolean, onPokemonClick: (Int) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(AppSizes.spacingLarge),
         verticalArrangement = Arrangement.spacedBy(AppSizes.spacingLarge)
     ) {
-        items(count = state.region.range.count()) { index ->
-            val pokemonId = state.region.range.first + index
+        items(count = ids.size, key = { ids[it] }) { index ->
+            val pokemonId = ids[index]
             val caught = pokemonId in state.caughtSpeciesIds
             val species = Pokemon.all[pokemonId] ?: return@items
 
@@ -129,6 +163,7 @@ private fun PokedexGrid(state: PokedexScreenState, onPokemonClick: (Int) -> Unit
                 species = species,
                 caught = caught,
                 shinyCaught = pokemonId in state.shinySpeciesIds,
+                showShiny = showShiny,
                 onClick = if (caught) {
                     { onPokemonClick(pokemonId) }
                 } else {
@@ -145,6 +180,7 @@ private fun PokedexEntryCard(
     species: PokemonSpecies,
     caught: Boolean,
     shinyCaught: Boolean,
+    showShiny: Boolean,
     onClick: (() -> Unit)?
 ) {
     val clickModifier = if (caught && onClick != null) {
@@ -176,6 +212,7 @@ private fun PokedexEntryCard(
                 pokemonName = species.displayName,
                 caught = caught,
                 shinyCaught = shinyCaught,
+                showShiny = showShiny,
                 size = null
             )
 

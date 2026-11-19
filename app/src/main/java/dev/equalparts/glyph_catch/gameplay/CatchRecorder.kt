@@ -3,6 +3,7 @@ package dev.equalparts.glyph_catch.gameplay
 import android.content.Context
 import dev.equalparts.glyph_catch.data.CaughtPokemon
 import dev.equalparts.glyph_catch.data.DailyStats
+import dev.equalparts.glyph_catch.data.EVOLUTION_STONES
 import dev.equalparts.glyph_catch.data.Eggs
 import dev.equalparts.glyph_catch.data.EvolutionRequirement
 import dev.equalparts.glyph_catch.data.FriendshipRules
@@ -34,19 +35,6 @@ internal object CatchRecorder {
     private const val INCENSE_DROP_CHANCE = 0.03
     private const val LINKING_CORD_DROP_CHANCE = 0.02
     private const val LINKING_CORD_MILESTONE = 40
-
-    private val EVOLUTION_STONES = listOf(
-        Item.FIRE_STONE,
-        Item.WATER_STONE,
-        Item.THUNDER_STONE,
-        Item.LEAF_STONE,
-        Item.MOON_STONE,
-        Item.SUN_STONE,
-        Item.SHINY_STONE,
-        Item.DUSK_STONE,
-        Item.DAWN_STONE,
-        Item.ICE_STONE
-    )
 
     /**
      * Records the catch and returns the saved Pokémon. [canSpawn] says which babies an Egg can

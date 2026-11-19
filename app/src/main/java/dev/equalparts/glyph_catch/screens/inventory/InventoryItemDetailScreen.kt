@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.equalparts.glyph_catch.AppEmptyState
 import dev.equalparts.glyph_catch.AppScaffoldWithTopBar
 import dev.equalparts.glyph_catch.AppSizes
 import dev.equalparts.glyph_catch.R
@@ -60,12 +59,16 @@ fun InventoryItemDetailScreen(
     onSelectionConsumed: () -> Unit = {},
     onSelectPokemonClick: (Item) -> Unit = {},
     onItemUsed: () -> Unit = {},
+    onItemGone: () -> Unit = {},
     onBackClick: () -> Unit
 ) {
     val inventoryFlow = remember(db) { db.inventoryDao().watchAllItems() }
-    val inventoryItems by inventoryFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+    val inventoryItems by inventoryFlow.collectAsStateWithLifecycle(initialValue = null)
     val item = remember(itemId) { Item.entries.getOrNull(itemId) }
-    val inventoryEntry = remember(inventoryItems) { inventoryItems.firstOrNull { it.itemId == itemId } }
+    val inventoryEntry = remember(inventoryItems) { inventoryItems?.firstOrNull { it.itemId == itemId } }
+    // Once the last one is used (or it was never there), go back to the Bag
+    val gone = inventoryItems != null && (item == null || inventoryEntry == null || inventoryEntry.quantity <= 0)
+    LaunchedEffect(gone) { if (gone) onItemGone() }
 
     val pokemonDao = remember(db) { db.pokemonDao() }
     val context = LocalContext.current
@@ -101,12 +104,7 @@ fun InventoryItemDetailScreen(
                 .padding(horizontal = AppSizes.spacingLarge, vertical = AppSizes.spacingLarge),
             verticalArrangement = Arrangement.spacedBy(AppSizes.spacingLarge)
         ) {
-            if (item == null || inventoryEntry == null || inventoryEntry.quantity <= 0) {
-                AppEmptyState(
-                    primaryText = stringResource(R.string.inventory_item_missing_title),
-                    secondaryText = stringResource(R.string.inventory_item_missing_subtitle)
-                )
-            } else {
+            if (item != null && inventoryEntry != null && inventoryEntry.quantity > 0) {
                 InventoryItemContent(
                     db = db,
                     item = item,
@@ -127,7 +125,11 @@ fun InventoryItemDetailScreen(
             if (item == Item.LINKING_CORD) tradeTargets(selectedPokemon) else emptyList()
         }
         var chosenTarget by remember(selectedPokemon) { mutableStateOf<Int?>(null) }
-        val pokedexIds by db.pokemonDao().watchCaughtSpeciesIds().collectAsStateWithLifecycle(emptyList())
+        // A shiny evolves into a shiny: it's new until that shiny has been seen
+        val pokedexIds by remember(selectedPokemon.isShiny) {
+            val dao = db.pokemonDao()
+            if (selectedPokemon.isShiny) dao.watchShinySpeciesIds() else dao.watchCaughtSpeciesIds()
+        }.collectAsStateWithLifecycle(emptyList())
         val maxCandies = if (item == Item.RARE_CANDY) {
             maxRareCandies(selectedPokemon, inventoryEntry?.quantity ?: 0)
         } else {
@@ -279,7 +281,7 @@ fun InventoryItemDetailScreen(
  * A button that repeats its action while held down, speeding up the longer it's held.
  */
 @Composable
-private fun RepeatingButton(label: String, enabled: Boolean, onStep: () -> Unit) {
+internal fun RepeatingButton(label: String, enabled: Boolean, onStep: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
     val currentOnStep by rememberUpdatedState(onStep)

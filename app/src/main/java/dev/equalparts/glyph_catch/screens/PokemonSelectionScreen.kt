@@ -43,6 +43,7 @@ import dev.equalparts.glyph_catch.data.PokemonDatabase
 import dev.equalparts.glyph_catch.data.PokemonSpecies
 import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.nameRes
+import dev.equalparts.glyph_catch.rememberFemaleSprite
 import dev.equalparts.glyph_catch.util.canUseItemOn
 import dev.equalparts.glyph_catch.util.itemEvolutionTargets
 
@@ -57,6 +58,8 @@ fun PokemonSelectionScreen(
     val caughtPokemon by pokemonDao.watchAllCaught().collectAsStateWithLifecycle(emptyList())
     val pokedexIds by pokemonDao.watchCaughtSpeciesIds().collectAsStateWithLifecycle(emptyList())
     val discovered = remember(pokedexIds) { pokedexIds.toSet() }
+    val shinyIds by pokemonDao.watchShinySpeciesIds().collectAsStateWithLifecycle(emptyList())
+    val shiniesSeen = remember(shinyIds) { shinyIds.toSet() }
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var showFavoritesOnly by remember { mutableStateOf(false) }
@@ -120,7 +123,7 @@ fun PokemonSelectionScreen(
                         PokemonSelectionRow(
                             pokemon = pokemon,
                             evolutions = itemEvolutionTargets(item, pokemon),
-                            discovered = discovered,
+                            discovered = if (pokemon.isShiny) shiniesSeen else discovered,
                             onClick = { onPokemonSelected(pokemon) }
                         )
                     }
@@ -157,7 +160,8 @@ private fun PokemonSelectionRow(
                 pokemonName = species.displayName,
                 modifier = Modifier.size(AppSizes.pokemonImageSize),
                 shiny = pokemon.isShiny,
-                form = pokemon.form
+                form = pokemon.form,
+                female = rememberFemaleSprite(pokemon)
             )
 
             Column(
@@ -176,7 +180,7 @@ private fun PokemonSelectionRow(
             if (evolutions.isNotEmpty()) {
                 Text(text = "→", style = MaterialTheme.typography.titleMedium)
                 evolutions.forEach { target ->
-                    EvolutionTarget(target = target, known = target.id in discovered)
+                    EvolutionTarget(target = target, known = target.id in discovered, shiny = pokemon.isShiny)
                 }
             }
         }
@@ -185,10 +189,10 @@ private fun PokemonSelectionRow(
 
 /**
  * The evolution the item leads to: its sprite if it's already in the Pokédex, or a mystery
- * silhouette marked as new.
+ * silhouette marked as new. A shiny leads to a shiny, so that's the one it has to have been seen.
  */
 @Composable
-private fun EvolutionTarget(target: PokemonSpecies, known: Boolean) {
+private fun EvolutionTarget(target: PokemonSpecies, known: Boolean, shiny: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(AppSizes.spacingTiny)
@@ -198,7 +202,8 @@ private fun EvolutionTarget(target: PokemonSpecies, known: Boolean) {
                 pokemonId = target.id,
                 pokemonName = target.displayName,
                 showSprite = known,
-                size = 44.dp
+                size = 44.dp,
+                shiny = shiny
             )
             if (!known) {
                 Text(text = "?", style = MaterialTheme.typography.titleLarge, color = Color.White)

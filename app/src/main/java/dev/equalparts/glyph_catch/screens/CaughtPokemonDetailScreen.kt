@@ -40,13 +40,10 @@ import dev.equalparts.glyph_catch.AppCard
 import dev.equalparts.glyph_catch.AppEmptyState
 import dev.equalparts.glyph_catch.AppScaffoldWithTopBar
 import dev.equalparts.glyph_catch.AppSizes
-import dev.equalparts.glyph_catch.Features
 import dev.equalparts.glyph_catch.R
 import dev.equalparts.glyph_catch.components.formLabel
 import dev.equalparts.glyph_catch.data.CaughtPokemon
 import dev.equalparts.glyph_catch.data.Forms
-import dev.equalparts.glyph_catch.data.GardenStore
-import dev.equalparts.glyph_catch.data.GardenZone
 import dev.equalparts.glyph_catch.data.LEGENDARY_SPECIES
 import dev.equalparts.glyph_catch.data.Pokemon
 import dev.equalparts.glyph_catch.data.PokemonDao
@@ -57,9 +54,6 @@ import dev.equalparts.glyph_catch.data.SHEDINJA_POOL
 import dev.equalparts.glyph_catch.data.Stat
 import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.releasePokemon
-import dev.equalparts.glyph_catch.screens.garden.FriendshipEvolutionHint
-import dev.equalparts.glyph_catch.screens.garden.LivesInRow
-import dev.equalparts.glyph_catch.screens.garden.friendshipEvolutions
 import dev.equalparts.glyph_catch.util.EventHelpers
 import dev.equalparts.glyph_catch.util.canHoldEverstone
 import dev.equalparts.glyph_catch.util.levelChoiceTargets
@@ -85,10 +79,11 @@ fun CaughtPokemonDetailScreen(
     db: PokemonDatabase,
     preferencesManager: PreferencesManager,
     pokemonId: String,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    onOpenPokedex: (Int) -> Unit = {}
 ) {
     val pokemonDao = remember(db) { db.pokemonDao() }
-    // Swipe sideways through the list it was opened from: the PC as filtered, the Garden...
+    // Swipe sideways through the list it was opened from: the PC as filtered, the team...
     val ids = remember(pokemonId) { PokemonBrowse.ids.takeIf { pokemonId in it } ?: listOf(pokemonId) }
     val pager = rememberPagerState(initialPage = ids.indexOf(pokemonId).coerceAtLeast(0)) { ids.size }
     val scope = rememberCoroutineScope()
@@ -122,7 +117,8 @@ fun CaughtPokemonDetailScreen(
                         releasePokemon(db, preferencesManager, listOf(pokemon.id))
                         onNavigateUp()
                     }
-                }
+                },
+                onOpenPokedex = onOpenPokedex
             )
         }
     }
@@ -154,7 +150,8 @@ private fun CaughtPokemonDetailContent(
     pokemon: CaughtPokemon?,
     pokemonDao: PokemonDao,
     preferencesManager: PreferencesManager,
-    onRelease: (CaughtPokemon) -> Unit
+    onRelease: (CaughtPokemon) -> Unit,
+    onOpenPokedex: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var isStartingTraining by remember { mutableStateOf(false) }
@@ -177,7 +174,6 @@ private fun CaughtPokemonDetailContent(
 
             // Training, team and the Glyph Matrix: filled when it's on
             val context = LocalContext.current
-            val garden = remember { GardenStore.get(context) }
             var team by remember { mutableStateOf(preferencesManager.team) }
             val inTeam = pokemon.id in team
             var companionId by remember { mutableStateOf(preferencesManager.companionId) }
@@ -217,8 +213,6 @@ private fun CaughtPokemonDetailContent(
                 ) {
                     preferencesManager.team = if (inTeam) team - pokemon.id else team + pokemon.id
                     team = preferencesManager.team
-                    // The team lives in the Meadow, so joining it means leaving any other zone
-                    if (!inTeam) garden.update { it.leaving(pokemon.id) }
                 }
                 DetailAction(
                     label = stringResource(R.string.detail_action_glyph),
@@ -249,25 +243,6 @@ private fun CaughtPokemonDetailContent(
                 }
             }
 
-            if (Features.TOWN) {
-                LivesInRow(
-                    pokemon = pokemon,
-                    inTeam = inTeam,
-                    teamFull = team.size >= PreferencesManager.TEAM_SIZE,
-                    onMove = { home ->
-                        garden.update { state ->
-                            when (home) {
-                                null, GardenZone.MEADOW -> state.leaving(pokemon.id)
-                                else -> state.moving(pokemon.id, home) ?: state
-                            }
-                        }
-                        val joins = home == GardenZone.MEADOW
-                        preferencesManager.team = if (joins) (team - pokemon.id) + pokemon.id else team - pokemon.id
-                        team = preferencesManager.team
-                    }
-                )
-            }
-
             ShinyChainCard(pokemon = pokemon)
 
             val choices = remember(pokemon) { levelChoiceTargets(pokemon) }
@@ -276,7 +251,12 @@ private fun CaughtPokemonDetailContent(
                     scope.launch {
                         pokemonDao.evolveCaught(pokemon, target.id, pokemon.level, pokemon.exp)
                         preferencesManager.dailyStats.add(Stat.EVOLUTIONS)
-                        preferencesManager.enqueueEvolutionNotification(pokemon.speciesId, target.id, pokemon.isShiny)
+                        preferencesManager.enqueueEvolutionNotification(
+                            pokemon.speciesId,
+                            target.id,
+                            pokemon.isShiny,
+                            pokemon.id
+                        )
                     }
                 }
             }
@@ -295,6 +275,10 @@ private fun CaughtPokemonDetailContent(
 
             DetailSection(title = stringResource(R.string.detail_section_capture)) {
                 CaptureDetails(pokemon = pokemon, pokemonDao = pokemonDao)
+            }
+
+            OutlinedButton(onClick = { onOpenPokedex(pokemon.speciesId) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.pokedex_open))
             }
 
             ReleaseButton(pokemon = pokemon, onRelease = { onRelease(pokemon) })
