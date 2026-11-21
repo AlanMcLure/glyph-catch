@@ -115,7 +115,11 @@ class SpawnCadenceController(private val spawnEngine: SpawnRulesEngine, private 
     private fun spawnWithReroll(nowMillis: Long, screenOffMinutes: Int, rerollOptions: RerollOptions?): SpawnOutcome {
         val firstSpawn = spawnEngine.spawn(screenOffMinutes)
 
-        if (rerollOptions == null || firstSpawn.pool.name == rerollOptions.poolName) {
+        // Only base pool spawns may be rerolled: item, event and special spawns are kept.
+        if (rerollOptions == null ||
+            firstSpawn.pool.name == rerollOptions.poolName ||
+            !firstSpawn.pool.isEligibleForReroll()
+        ) {
             return SpawnOutcome(
                 result = firstSpawn.copy(spawnedAtMillis = nowMillis),
                 initialPoolName = firstSpawn.pool.name,
