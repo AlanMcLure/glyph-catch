@@ -50,13 +50,15 @@ class OpenWeatherMapProvider(
     override fun watchWeather(): Flow<Weather> = weatherState
 
     private fun fetchWeatherAsync() {
+        // Counted when it starts, not when it succeeds: otherwise every weather check while a call is
+        // in flight or failing fires another one, and OpenWeatherMap blocks the key (60 calls a minute)
+        val fetchStartedAt = System.currentTimeMillis()
+        lastFetchTime = fetchStartedAt
         coroutineScope.launch {
-            val fetchStartedAt = System.currentTimeMillis()
             try {
                 val weather = fetchWeatherFromApi()
                 cachedWeather = weather
                 weatherState.value = weather
-                lastFetchTime = fetchStartedAt
                 prefs.weatherConnectionStatus = WeatherConnectionStatus.CONNECTED
                 prefs.weatherLastUpdateEpochMillis = fetchStartedAt
             } catch (e: Exception) {

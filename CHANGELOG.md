@@ -16,6 +16,7 @@ All notable changes to Glyph Catch since it was continued from [Equal Parts' ori
 ### Fixed
 
 - Phone (4a) Pro: the Glyph Matrix now shows the time while no Pokémon is waiting, hours above minutes so it fits. "Clock" now works there, and "Companion" is no longer offered (in Settings or on a Pokémon's page), since no Pokémon fits that small matrix.
+- Live weather: when a weather check failed, the app kept retrying nonstop, which could get your OpenWeatherMap key blocked. Now it tries at most once an hour.
 
 ## 3.9.0
 
