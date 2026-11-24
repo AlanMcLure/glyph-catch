@@ -297,10 +297,12 @@
     <string name="developer_call_yes">Sure!</string>
     <string name="developer_call_no">Rather not</string>
     <string name="developer_call_bye">Thanks for hearing me out! Keep on catching \'em all.</string>
-    <string name="eevee_gift_1">Hello! It\'s me, Professor Oak. I hear you\'ve already caught a few Pokémon while your phone rests face down. That\'s the spirit!</string>
-    <string name="eevee_gift_2">So I want to give you something special: this Eevee. Take good care of it!</string>
+    <string name="eevee_gift_1">Hi! It\'s Erik, the one behind Glyph Catch. I see you\'ve already caught a few Pokémon with your phone face down. That\'s the spirit!</string>
+    <string name="eevee_gift_2">So I wanted to thank you with something special: this Eevee. Take good care of it!</string>
     <string name="eevee_gift_3">Eevee can evolve in many different ways. Have you seen the evolution stones in your Bag? Each one turns it into a different Pokémon.</string>
-    <string name="eevee_gift_4">Keep it up, and talk to you soon!</string>
+    <string name="eevee_favor">Also, I wanted to ask you a small favour, no strings attached.</string>
+    <string name="eevee_joke">And don\'t worry: whatever you say, I\'m not taking the Eevee back.</string>
+    <string name="eevee_gift_4">Thanks for playing, and talk to you soon!</string>
     <string name="npc_pokemon_received">You received %1$s!</string>
     <string name="settings_waiting_notification_title">Notify waiting Pokémon</string>
     <string name="settings_waiting_notification_subtitle">A quiet notification with a button to throw a Poké Ball from the lock screen, without unlocking</string>

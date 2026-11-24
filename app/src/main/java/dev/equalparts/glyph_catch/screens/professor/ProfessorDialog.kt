@@ -304,7 +304,7 @@ private fun EggBadge() {
     }
 }
 
-/** A Pokémon handed over, like the Eevee Oak gives early on. */
+/** A Pokémon handed over, like the Eevee the developer gives early on. */
 @Composable
 private fun PokemonBadge(pokemonId: Int) {
     val name = Pokemon[pokemonId]?.displayName ?: stringResource(R.string.common_unknown)
@@ -386,12 +386,38 @@ object NpcScripts {
                 DialoguePage(context.getString(R.string.developer_call_bye))
             )
         }
-        NpcEvent.EeveeGift -> listOf(
-            DialoguePage(context.getString(R.string.eevee_gift_1)),
-            DialoguePage(context.getString(R.string.eevee_gift_2), pokemon = Pokemon.EEVEE.id),
-            DialoguePage(context.getString(R.string.eevee_gift_3)),
-            DialoguePage(context.getString(R.string.eevee_gift_4))
-        )
+        NpcEvent.EeveeGift -> {
+            val preferences = PreferencesManager(context)
+            val gift = listOf(
+                DialoguePage(context.getString(R.string.eevee_gift_1)),
+                DialoguePage(context.getString(R.string.eevee_gift_2), pokemon = Pokemon.EEVEE.id),
+                DialoguePage(context.getString(R.string.eevee_gift_3))
+            )
+            // New players are asked about the stats here, after the gift and with no strings attached
+            // (the hidden way of playing never sends anything, so it's never asked)
+            val favor = if (preferences.developerCalled || preferences.playWhileInUse) {
+                emptyList()
+            } else {
+                listOf(
+                    DialoguePage(context.getString(R.string.eevee_favor)),
+                    DialoguePage(context.getString(R.string.developer_call_2)),
+                    DialoguePage(context.getString(R.string.developer_call_3)),
+                    DialoguePage(context.getString(R.string.eevee_joke)),
+                    DialoguePage(
+                        context.getString(R.string.developer_call_ask),
+                        choices = listOf(
+                            DialogueChoice(context.getString(R.string.developer_call_yes)) {
+                                preferences.shareStats = true
+                            },
+                            DialogueChoice(context.getString(R.string.developer_call_no)) {
+                                preferences.shareStats = false
+                            }
+                        )
+                    )
+                )
+            }
+            gift + favor + DialoguePage(context.getString(R.string.eevee_gift_4))
+        }
     }
 }
 

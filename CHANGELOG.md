@@ -6,7 +6,7 @@ All notable changes to Glyph Catch since it was continued from [Equal Parts' ori
 
 ### New
 
-- A gift to start with: after your first five catches, Professor Oak calls and gives you an Eevee. Players who are further along get theirs too.
+- A gift to start with: after your first five catches, I (Erik, the one behind Glyph Catch) call you and give you an Eevee. Players who are further along get theirs too.
 
 ### Improved
 

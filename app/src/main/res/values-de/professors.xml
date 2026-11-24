@@ -262,10 +262,12 @@
     <string name="developer_call_yes">Klar!</string>
     <string name="developer_call_no">Lieber nicht</string>
     <string name="developer_call_bye">Danke fürs Zuhören! Fang sie weiter alle.</string>
-    <string name="eevee_gift_1">Hallo! Ich bin es, Professor Eich. Wie ich höre, hast du schon ein paar Pokémon gefangen, während dein Handy umgedreht lag. So ist es richtig!</string>
-    <string name="eevee_gift_2">Deshalb möchte ich dir etwas Besonderes schenken: dieses Evoli. Pass gut darauf auf!</string>
+    <string name="eevee_gift_1">Hallo! Ich bin Erik, der hinter Glyph Catch steckt. Wie ich sehe, hast du schon ein paar Pokémon gefangen, während dein Handy umgedreht lag. So ist es richtig!</string>
+    <string name="eevee_gift_2">Deshalb möchte ich mich mit etwas Besonderem bedanken: diesem Evoli. Pass gut darauf auf!</string>
     <string name="eevee_gift_3">Evoli kann sich auf viele verschiedene Arten entwickeln. Hast du die Entwicklungssteine in deinem Beutel gesehen? Jeder verwandelt es in ein anderes Pokémon.</string>
-    <string name="eevee_gift_4">Mach weiter so, bis bald!</string>
+    <string name="eevee_favor">Außerdem wollte ich dich um einen kleinen Gefallen bitten, ganz unverbindlich.</string>
+    <string name="eevee_joke">Und keine Sorge: Egal, was du sagst, ich nehme dir dein Evoli nicht wieder weg.</string>
+    <string name="eevee_gift_4">Danke fürs Spielen, bis bald!</string>
     <string name="npc_pokemon_received">Du hast %1$s erhalten!</string>
     <string name="settings_waiting_notification_title">Über wartende Pokémon benachrichtigen</string>
     <string name="settings_waiting_notification_subtitle">Eine stille Benachrichtigung mit einer Schaltfläche, um vom Sperrbildschirm aus einen Pokéball zu werfen, ohne zu entsperren</string>

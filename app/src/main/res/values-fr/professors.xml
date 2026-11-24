@@ -262,10 +262,12 @@
     <string name="developer_call_yes">Bien sûr !</string>
     <string name="developer_call_no">Plutôt pas</string>
     <string name="developer_call_bye">Merci de m’avoir écouté ! Continue de tous les attraper.</string>
-    <string name="eevee_gift_1">Bonjour ! C’est moi, le Professeur Chen. On m’a dit que tu avais déjà attrapé quelques Pokémon, téléphone posé face cachée. C’est comme ça qu’on fait !</string>
-    <string name="eevee_gift_2">Alors je veux te donner quelque chose de spécial : cet Évoli. Prends-en bien soin !</string>
+    <string name="eevee_gift_1">Salut ! C’est Erik, celui qui est derrière Glyph Catch. Je vois que tu as déjà attrapé quelques Pokémon, téléphone posé face cachée. C’est comme ça qu’on fait !</string>
+    <string name="eevee_gift_2">Alors je voulais te remercier avec quelque chose de spécial : cet Évoli. Prends-en bien soin !</string>
     <string name="eevee_gift_3">Évoli peut évoluer de bien des façons. As-tu vu les pierres d’évolution dans ton Sac ? Chacune le transforme en un Pokémon différent.</string>
-    <string name="eevee_gift_4">Continue comme ça, et à bientôt !</string>
+    <string name="eevee_favor">À part ça, je voulais te demander un petit service, sans aucune obligation.</string>
+    <string name="eevee_joke">Et t’inquiète : quoi que tu répondes, je ne vais pas te reprendre ton Évoli.</string>
+    <string name="eevee_gift_4">Merci de jouer, et à bientôt !</string>
     <string name="npc_pokemon_received">Tu as reçu %1$s !</string>
     <string name="settings_waiting_notification_title">Prévenir des Pokémon en attente</string>
     <string name="settings_waiting_notification_subtitle">Une notification silencieuse avec un bouton pour lancer une Poké Ball depuis l’écran de verrouillage, sans déverrouiller</string>

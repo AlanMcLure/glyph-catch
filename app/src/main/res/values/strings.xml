@@ -219,7 +219,7 @@
     <string name="pool_rare">Rare</string>
     <string name="pool_very_rare">Very rare</string>
     <string name="pool_egg">Egg</string>
-    <string name="pool_gift">Gift from Prof. Oak</string>
+    <string name="pool_gift">Gift from Erik</string>
     <string name="pool_evolution">Evolution</string>
     <string name="caught_detail_empty_title">Pokémon not found</string>
     <string name="caught_detail_empty_subtitle">Try again from the caught list.</string>

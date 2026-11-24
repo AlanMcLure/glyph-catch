@@ -262,10 +262,12 @@
     <string name="developer_call_yes">Claro!</string>
     <string name="developer_call_no">Melhor não</string>
     <string name="developer_call_bye">Obrigado por me ouvir! Continue pegando todos.</string>
-    <string name="eevee_gift_1">Olá! Sou eu, o Professor Carvalho. Me contaram que você já pegou alguns Pokémon com o celular virado para baixo. É assim que se faz!</string>
-    <string name="eevee_gift_2">Por isso quero te dar algo especial: este Eevee. Cuide bem dele!</string>
+    <string name="eevee_gift_1">Oi! Sou o Erik, quem está por trás do Glyph Catch. Vi que você já pegou alguns Pokémon com o celular virado para baixo. É assim que se faz!</string>
+    <string name="eevee_gift_2">Por isso eu quis te agradecer com algo especial: este Eevee. Cuide bem dele!</string>
     <string name="eevee_gift_3">Eevee pode evoluir de muitas formas diferentes. Você viu as pedras de evolução na sua Mochila? Cada uma o transforma em um Pokémon diferente.</string>
-    <string name="eevee_gift_4">Continue assim, e até logo!</string>
+    <string name="eevee_favor">Além disso, queria te pedir um pequeno favor, sem compromisso nenhum.</string>
+    <string name="eevee_joke">E relaxa: diga o que disser, não vou tirar o seu Eevee.</string>
+    <string name="eevee_gift_4">Obrigado por jogar, e até logo!</string>
     <string name="npc_pokemon_received">Você recebeu %1$s!</string>
     <string name="settings_waiting_notification_title">Avisar de Pokémon esperando</string>
     <string name="settings_waiting_notification_subtitle">Uma notificação silenciosa com um botão para lançar uma Poké Ball da tela de bloqueio, sem desbloquear</string>

@@ -24,10 +24,7 @@ enum class Npc(@param:DrawableRes val sprite: Int, @param:StringRes val nameRes:
     COLLECTOR(R.drawable.npc_collector, R.string.npc_collector),
 
     /** An unknown number: the developer, asking about the anonymous stats. */
-    DEVELOPER(R.drawable.npc_unknown, R.string.npc_unknown_number),
-
-    /** Professor Oak, calling in person for an early gift. */
-    OAK(R.drawable.professor_oak, R.string.professor_oak)
+    DEVELOPER(R.drawable.npc_unknown, R.string.npc_unknown_number)
 }
 
 sealed class NpcEvent(val gift: Item?) {
@@ -53,7 +50,7 @@ sealed class NpcEvent(val gift: Item?) {
     data object Developer : NpcEvent(null)
 
     /**
-     * After the first few catches, Oak gives an Eevee: something special early on, and a use for
+     * After the first few catches, the developer calls with an Eevee: something special early on, and a use for
      * the evolution stones every new player starts with.
      */
     data object EeveeGift : NpcEvent(null)
@@ -91,7 +88,8 @@ object NpcEvents {
         }
         if (!breederMet && Item.POKEDEX_JOHTO in inBag) add(NpcEvent.Breeder)
         if (breederMet && !collectorMet) add(NpcEvent.Collector)
-        if (!developerCalled && caughtEver >= DEVELOPER_CALL_CATCHES) add(NpcEvent.Developer)
+        // Whoever hasn't had the Eevee yet gets asked during that call instead
+        if (!developerCalled && eeveeReceived && caughtEver >= DEVELOPER_CALL_CATCHES) add(NpcEvent.Developer)
     }
 
     fun npcFor(event: NpcEvent, preferences: PreferencesManager): Npc = when (event) {
@@ -101,7 +99,7 @@ object NpcEvents {
         NpcEvent.Honey -> Npc.BUG_CATCHER
         NpcEvent.Collector -> Npc.COLLECTOR
         NpcEvent.Developer -> Npc.DEVELOPER
-        NpcEvent.EeveeGift -> Npc.OAK
+        NpcEvent.EeveeGift -> Npc.DEVELOPER
     }
 
     suspend fun complete(event: NpcEvent, db: PokemonDatabase, preferences: PreferencesManager) {
@@ -116,7 +114,11 @@ object NpcEvents {
             NpcEvent.SuperRepel, NpcEvent.Honey -> Unit
             NpcEvent.Collector -> preferences.collectorMet = true
             NpcEvent.Developer -> preferences.developerCalled = true
-            NpcEvent.EeveeGift -> giveEevee(db, preferences)
+            NpcEvent.EeveeGift -> {
+                // The same call asks about the stats, so there's no second one
+                preferences.developerCalled = true
+                giveEevee(db, preferences)
+            }
             NpcEvent.Breeder -> {
                 preferences.breederMet = true
                 if (db.eggDao().countEggs() < Eggs.MAX_EGGS) {

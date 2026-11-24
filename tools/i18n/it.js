@@ -200,7 +200,7 @@ module.exports = {
     pool_uncommon: 'Non comune',
     pool_rare: 'Raro',
     pool_egg: "Uovo",
-    pool_gift: "Regalo del Prof. Oak",
+    pool_gift: "Regalo di Erik",
     pool_evolution: "Evoluzione",
     pool_very_rare: 'Molto raro',
     caught_detail_encounter_event: 'Evento',
