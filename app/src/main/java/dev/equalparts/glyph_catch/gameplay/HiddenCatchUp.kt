@@ -61,7 +61,10 @@ object HiddenCatchUp {
             val engine = SpawnRulesEngine(
                 rules = createSpawnRules(gameplay),
                 speciesFilter = { gameplay.trainer.canSpawn(it.id) },
-                shinyMultiplier = { EventHelpers.shinyMultiplier(it.id, gameplay.trainer.catchCounts[it.id] ?: 0) }
+                shinyMultiplier = {
+                    val trainer = gameplay.trainer
+                    EventHelpers.shinyMultiplier(it.id, trainer.catchCounts[it.id] ?: 0, firstShiny = !trainer.hasShiny)
+                }
             )
             val db = PokemonDatabase.getInstance(app)
             repeat(minOf(missed, room)) {

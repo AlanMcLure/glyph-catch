@@ -3,6 +3,10 @@ package dev.equalparts.glyph_catch.data
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import dev.equalparts.glyph_catch.R
+import dev.equalparts.glyph_catch.gameplay.CatchRecorder
+import dev.equalparts.glyph_catch.gameplay.PersistentSpawn
+import dev.equalparts.glyph_catch.util.EventHelpers
+import kotlin.random.Random
 
 /**
  * People who show up once to hand over an item. The clerk and the breeder are a man or a woman
@@ -20,7 +24,10 @@ enum class Npc(@param:DrawableRes val sprite: Int, @param:StringRes val nameRes:
     COLLECTOR(R.drawable.npc_collector, R.string.npc_collector),
 
     /** An unknown number: the developer, asking about the anonymous stats. */
-    DEVELOPER(R.drawable.npc_unknown, R.string.npc_unknown_number)
+    DEVELOPER(R.drawable.npc_unknown, R.string.npc_unknown_number),
+
+    /** Professor Oak, calling in person for an early gift. */
+    OAK(R.drawable.professor_oak, R.string.professor_oak)
 }
 
 sealed class NpcEvent(val gift: Item?) {
@@ -44,6 +51,12 @@ sealed class NpcEvent(val gift: Item?) {
 
     /** After a few catches, a mysterious call: the developer asks whether to share anonymous stats. */
     data object Developer : NpcEvent(null)
+
+    /**
+     * After the first few catches, Oak gives an Eevee: something special early on, and a use for
+     * the evolution stones every new player starts with.
+     */
+    data object EeveeGift : NpcEvent(null)
 }
 
 object NpcEvents {
@@ -52,6 +65,7 @@ object NpcEvents {
     const val SUPER_REPEL_UNLOCK_SPECIES_COUNT = 150
     val HONEY_UNLOCK_SPECIES_COUNT = Region.SINNOH.unlockAt + 5
     const val DEVELOPER_CALL_CATCHES = 10
+    const val EEVEE_GIFT_CATCHES = 5
 
     /**
      * Encounters the player has earned, in order. [inBag] holds every item with a Bag entry,
@@ -63,8 +77,10 @@ object NpcEvents {
         inBag: Set<Item>,
         breederMet: Boolean,
         collectorMet: Boolean = true,
-        developerCalled: Boolean = true
+        developerCalled: Boolean = true,
+        eeveeReceived: Boolean = true
     ): List<NpcEvent> = buildList {
+        if (!eeveeReceived && caughtEver >= EEVEE_GIFT_CATCHES) add(NpcEvent.EeveeGift)
         ROD_UNLOCK_COUNTS.forEach { (rod, count) ->
             if (rod !in inBag && caughtEver >= count) add(NpcEvent.Rod(rod))
         }
@@ -85,6 +101,7 @@ object NpcEvents {
         NpcEvent.Honey -> Npc.BUG_CATCHER
         NpcEvent.Collector -> Npc.COLLECTOR
         NpcEvent.Developer -> Npc.DEVELOPER
+        NpcEvent.EeveeGift -> Npc.OAK
     }
 
     suspend fun complete(event: NpcEvent, db: PokemonDatabase, preferences: PreferencesManager) {
@@ -99,6 +116,7 @@ object NpcEvents {
             NpcEvent.SuperRepel, NpcEvent.Honey -> Unit
             NpcEvent.Collector -> preferences.collectorMet = true
             NpcEvent.Developer -> preferences.developerCalled = true
+            NpcEvent.EeveeGift -> giveEevee(db, preferences)
             NpcEvent.Breeder -> {
                 preferences.breederMet = true
                 if (db.eggDao().countEggs() < Eggs.MAX_EGGS) {
@@ -113,6 +131,35 @@ object NpcEvents {
         }
     }
 
+    /** Recorded like any catch, with the usual shiny odds (four times likelier before the first). */
+    private suspend fun giveEevee(db: PokemonDatabase, preferences: PreferencesManager) {
+        if (preferences.eeveeGiftReceived) return
+        preferences.eeveeGiftReceived = true
+        val firstShiny = db.pokemonDao().getShinyPokedexSpeciesIds().isEmpty()
+        val chain = preferences.shinyChainCounts[EEVEE] ?: 0
+        val odds = EventHelpers.wildShinyOdds(EventHelpers.shinyMultiplier(EEVEE, chain, firstShiny))
+        val owned = db.inventoryDao().getAllItems()
+            .filter { it.quantity > 0 }
+            .mapNotNull { Item.entries.getOrNull(it.itemId) }
+            .toSet()
+        val regions = Region.active(owned, preferences.disabledRegions)
+        CatchRecorder.record(
+            db,
+            preferences,
+            PersistentSpawn(
+                pokemonId = EEVEE,
+                poolName = GIFT_POOL,
+                isSpecial = false,
+                isConditional = false,
+                screenOffDurationMinutes = 0,
+                isShiny = Random.nextInt(odds) == 0
+            ),
+            canSpawn = { canSpawnSpecies(it, owned, regions) }
+        )
+    }
+
+    private const val EEVEE = 133
+    const val GIFT_POOL = "Gift"
     private const val CLERK = "clerk"
     private const val BREEDER = "breeder"
 }

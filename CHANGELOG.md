@@ -2,6 +2,21 @@
 
 All notable changes to Glyph Catch since it was continued from [Equal Parts' original](https://github.com/equalparts/glyph-catch).
 
+## 3.9.5
+
+### New
+
+- A gift to start with: after your first five catches, Professor Oak calls and gives you an Eevee. Players who are further along get theirs too.
+
+### Improved
+
+- Phone (4a) Pro: until there's a Poké Ball widget on your home screen, Home suggests adding it, with a button that does it for you.
+- Settings → Ideas and feedback takes you straight to the Glyph Catch thread in the Nothing Community, to suggest ideas or report bugs.
+
+### Fixed
+
+- Phone (4a) Pro: the Glyph Matrix now shows the time while no Pokémon is waiting, hours above minutes so it fits. "Clock" now works there, and "Companion" is no longer offered (in Settings or on a Pokémon's page), since no Pokémon fits that small matrix.
+
 ## 3.9.0
 
 ### New

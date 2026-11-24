@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +49,7 @@ fun SettingsSectionList(modifier: Modifier, onSectionSelected: (SettingsDestinat
     val context = LocalContext.current
     val preferences = remember { PreferencesManager(context) }
     val hasNewWallpaper by produceState(false) { value = Achievements.refresh(context).unseen.isNotEmpty() }
+    val uriHandler = LocalUriHandler.current
 
     Column(
         modifier = modifier.verticalScroll(scrollState),
@@ -99,6 +101,13 @@ fun SettingsSectionList(modifier: Modifier, onSectionSelected: (SettingsDestinat
             onClick = { onSectionSelected(SettingsDestination.Debug) }
         )
 
+        SettingsSectionCard(
+            icon = R.drawable.ic_settings_forum,
+            title = stringResource(R.string.settings_forum_title),
+            description = stringResource(R.string.settings_forum_description),
+            onClick = { uriHandler.openUri(FORUM_URL) }
+        )
+
         VersionAndHiddenSettings(onOpen = { onSectionSelected(SettingsDestination.Hidden) })
     }
 }
@@ -146,6 +155,9 @@ private fun VersionAndHiddenSettings(onOpen: () -> Unit) {
 }
 
 private const val HIDDEN_SETTINGS_TAPS = 7
+
+/** The Glyph Catch thread in the Nothing Community, where players already talk to the developer. */
+private const val FORUM_URL = "https://nothing.community/d/64460"
 
 @Composable
 private fun weatherSummary(preferences: PreferencesManager): String {

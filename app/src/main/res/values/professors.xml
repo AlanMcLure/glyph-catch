@@ -163,6 +163,8 @@
     <string name="settings_section_appearance_description">Color sprites and widget backgrounds</string>
     <string name="settings_section_toy_description">Clock, companion and brightness on the Glyph Matrix</string>
     <string name="settings_section_report_description">Logs to report a problem</string>
+    <string name="settings_forum_title">Ideas and feedback</string>
+    <string name="settings_forum_description">Ideas, bugs or just a hello: write to me on the Glyph Catch thread in the Nothing Community</string>
     <string name="settings_summary_weather_live">Live weather · %1$s</string>
     <string name="settings_summary_sleep">Bedtime: %1$s</string>
     <string name="widget_howto">To add a widget, long-press your home screen, tap Widgets and look for Glyph Catch. Pick your team from each Pokémon\'s details in the PC.</string>
@@ -295,6 +297,11 @@
     <string name="developer_call_yes">Sure!</string>
     <string name="developer_call_no">Rather not</string>
     <string name="developer_call_bye">Thanks for hearing me out! Keep on catching \'em all.</string>
+    <string name="eevee_gift_1">Hello! It\'s me, Professor Oak. I hear you\'ve already caught a few Pokémon while your phone rests face down. That\'s the spirit!</string>
+    <string name="eevee_gift_2">So I want to give you something special: this Eevee. Take good care of it!</string>
+    <string name="eevee_gift_3">Eevee can evolve in many different ways. Have you seen the evolution stones in your Bag? Each one turns it into a different Pokémon.</string>
+    <string name="eevee_gift_4">Keep it up, and talk to you soon!</string>
+    <string name="npc_pokemon_received">You received %1$s!</string>
     <string name="settings_waiting_notification_title">Notify waiting Pokémon</string>
     <string name="settings_waiting_notification_subtitle">A quiet notification with a button to throw a Poké Ball from the lock screen, without unlocking</string>
 

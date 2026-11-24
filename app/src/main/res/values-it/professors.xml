@@ -141,6 +141,8 @@
     <string name="settings_section_appearance_description">Sprite a colori e sfondi dei widget</string>
     <string name="settings_section_toy_description">Orologio, compagno e luminosità della Glyph Matrix</string>
     <string name="settings_section_report_description">Registri per segnalare un problema</string>
+    <string name="settings_forum_title">Idee e commenti</string>
+    <string name="settings_forum_description">Idee, bug o solo un saluto: scrivimi nella discussione di Glyph Catch nella community di Nothing</string>
     <string name="settings_summary_weather_live">Meteo reale · %1$s</string>
     <string name="settings_summary_sleep">Ora di dormire: %1$s</string>
     <string name="widget_howto">Per aggiungere un widget, tieni premuta la schermata Home, tocca Widget e cerca Glyph Catch. La squadra si sceglie dalla scheda di ogni Pokémon nel PC.</string>
@@ -260,6 +262,11 @@
     <string name="developer_call_yes">Certo!</string>
     <string name="developer_call_no">Meglio di no</string>
     <string name="developer_call_bye">Grazie per avermi ascoltato! Continua a prenderli tutti.</string>
+    <string name="eevee_gift_1">Ciao! Sono io, il Professor Oak. Mi hanno detto che hai già catturato qualche Pokémon con il telefono a faccia in giù. Così si fa!</string>
+    <string name="eevee_gift_2">Per questo voglio darti qualcosa di speciale: questo Eevee. Abbine cura!</string>
+    <string name="eevee_gift_3">Eevee può evolversi in tanti modi diversi. Hai visto le pietre evolutive nella tua Borsa? Ognuna lo trasforma in un Pokémon diverso.</string>
+    <string name="eevee_gift_4">Continua così, ci sentiamo presto!</string>
+    <string name="npc_pokemon_received">Hai ricevuto %1$s!</string>
     <string name="settings_waiting_notification_title">Avvisa dei Pokémon in attesa</string>
     <string name="settings_waiting_notification_subtitle">Una notifica silenziosa con un pulsante per lanciare una Poké Ball dalla schermata di blocco, senza sbloccare</string>
     <string name="widget_pokeball_name">Poké Ball</string>

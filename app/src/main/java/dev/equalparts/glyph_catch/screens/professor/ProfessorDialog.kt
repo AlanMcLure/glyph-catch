@@ -44,16 +44,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import dev.equalparts.glyph_catch.ItemGlyphCircle
+import dev.equalparts.glyph_catch.PokemonSpriteCircle
 import dev.equalparts.glyph_catch.R
 import dev.equalparts.glyph_catch.data.Item
 import dev.equalparts.glyph_catch.data.LegendaryItems
 import dev.equalparts.glyph_catch.data.NpcEvent
 import dev.equalparts.glyph_catch.data.PLAYER_NAME_LENGTH
+import dev.equalparts.glyph_catch.data.Pokemon
 import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.data.Professor
 import dev.equalparts.glyph_catch.data.ProfessorEvent
 import dev.equalparts.glyph_catch.data.Region
 import dev.equalparts.glyph_catch.data.Rumors
+import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.nameRes
 import dev.equalparts.glyph_catch.ndotFontFamily
 import kotlinx.coroutines.delay
@@ -66,6 +69,7 @@ data class DialoguePage(
     val text: String,
     val gift: Item? = null,
     val egg: Boolean = false,
+    val pokemon: Int? = null,
     val choices: List<DialogueChoice> = emptyList(),
     val ask: DialogueAsk? = null
 )
@@ -148,6 +152,7 @@ fun CharacterDialog(
                 CharacterSprite(sprite, name, modifier = Modifier.size(240.dp))
                 page.gift?.let { GiftBadge(it) }
                 if (page.egg) EggBadge()
+                page.pokemon?.let { PokemonBadge(it) }
                 Spacer(modifier = Modifier.weight(1f))
                 if (page.choices.isNotEmpty() && shown >= page.text.length) {
                     ChoiceBox(page.choices) { choice ->
@@ -299,6 +304,20 @@ private fun EggBadge() {
     }
 }
 
+/** A Pokémon handed over, like the Eevee Oak gives early on. */
+@Composable
+private fun PokemonBadge(pokemonId: Int) {
+    val name = Pokemon[pokemonId]?.displayName ?: stringResource(R.string.common_unknown)
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        PokemonSpriteCircle(modifier = Modifier.size(72.dp), pokemonId = pokemonId, pokemonName = name, size = 72.dp)
+        Text(
+            text = stringResource(R.string.npc_pokemon_received, name),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
 private const val TYPE_DELAY_MILLIS = 18L
 
 /**
@@ -367,6 +386,12 @@ object NpcScripts {
                 DialoguePage(context.getString(R.string.developer_call_bye))
             )
         }
+        NpcEvent.EeveeGift -> listOf(
+            DialoguePage(context.getString(R.string.eevee_gift_1)),
+            DialoguePage(context.getString(R.string.eevee_gift_2), pokemon = Pokemon.EEVEE.id),
+            DialoguePage(context.getString(R.string.eevee_gift_3)),
+            DialoguePage(context.getString(R.string.eevee_gift_4))
+        )
     }
 }
 

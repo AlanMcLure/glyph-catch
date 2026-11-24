@@ -311,6 +311,9 @@ data class GameplayContext(
         var activeRegions: Set<Region> = Region.entries.toSet()
         var catchCounts: Map<Int, Int> = emptyMap()
 
+        /** Whether a shiny is in the Pokédex yet; until then they're likelier. */
+        var hasShiny: Boolean = true
+
         /**
          * Yields `true` if the given Pokémon species is not in the current spawn queue
          * and has not been caught before. Legendary Pokémon only need to be missing from the
@@ -412,6 +415,7 @@ data class GameplayContext(
                     preferences.seedCatchCounts(dao.countOwnedBySpecies().associate { it.speciesId to it.count })
                 }
                 catchCounts = preferences.shinyChainCounts
+                hasShiny = dao.getShinyPokedexSpeciesIds().isNotEmpty()
 
                 val activePartner = dao.getActiveTrainingPartner()
                 companion = preferences.companionId?.let { dao.getCaughtPokemon(it) } ?: activePartner

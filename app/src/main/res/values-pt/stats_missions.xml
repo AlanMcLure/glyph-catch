@@ -18,6 +18,11 @@
     <string name="home_eggs_empty">Nenhum ovo ainda. Você pode encontrar um ao capturar um Pokémon.</string>
     <string name="home_update_banner">A versão %1$s está disponível</string>
     <string name="home_update_badge">Atualizar</string>
+    <string name="home_widget_hint_title">Capture com um toque</string>
+    <string name="home_widget_hint_body">No seu celular você captura pelo app ou pelo widget da Poké Ball. Coloque-o na tela inicial e lance Poké Balls sem abrir o app.</string>
+    <string name="home_widget_hint_manual">Toque e segure a tela inicial, toque em Widgets e procure Glyph Catch.</string>
+    <string name="home_widget_hint_add">Adicionar widget</string>
+    <string name="home_widget_hint_dismiss">Não, obrigado</string>
     <string name="missions_title">Missões</string>
     <string name="missions_description">Missões novas todo dia e uma maior toda segunda-feira. As recompensas incluem itens e um bônus que atrai Pokémon mais raros.</string>
     <string name="missions_daily">DIÁRIA</string>

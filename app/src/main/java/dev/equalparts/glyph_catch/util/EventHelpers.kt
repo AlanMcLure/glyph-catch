@@ -74,9 +74,20 @@ object EventHelpers {
     fun catchesToNextStep(timesCaught: Int): Int? =
         CATCH_STREAK_STEPS.firstOrNull { timesCaught < it.first }?.first?.minus(timesCaught)
 
-    /** How much likelier this species' shiny is: its chain, or the legendary odds. */
-    fun shinyMultiplier(speciesId: Int, chain: Int): Int =
-        if (speciesId in LEGENDARY_SPECIES) LEGENDARY_SHINY_MULTIPLIER else catchShinyMultiplier(chain)
+    /**
+     * Until the first shiny, every one is this many times likelier (1/128 on a normal day), so
+     * it comes in the first days instead of weeks. After that, back to the usual odds.
+     */
+    const val FIRST_SHINY_MULTIPLIER = 4
+
+    /**
+     * How much likelier this species' shiny is: its chain, or the legendary odds, and four times
+     * that while the player has no shiny yet ([firstShiny]).
+     */
+    fun shinyMultiplier(speciesId: Int, chain: Int, firstShiny: Boolean = false): Int {
+        val base = if (speciesId in LEGENDARY_SPECIES) LEGENDARY_SHINY_MULTIPLIER else catchShinyMultiplier(chain)
+        return if (firstShiny) base * FIRST_SHINY_MULTIPLIER else base
+    }
 
     /** One in this many wild Pokémon of a species is shiny today, with [multiplier] on top. */
     fun wildShinyOdds(multiplier: Int, date: LocalDate = LocalDate.now()): Int =

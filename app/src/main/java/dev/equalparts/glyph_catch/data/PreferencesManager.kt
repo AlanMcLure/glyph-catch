@@ -379,6 +379,16 @@ class PreferencesManager(context: Context) {
         get() = prefs.getBoolean(KEY_POKE_BALL_TIP_SEEN, false)
         set(value) = prefs.edit { putBoolean(KEY_POKE_BALL_TIP_SEEN, value) }
 
+    /** Professor Oak has given the early Eevee. */
+    var eeveeGiftReceived: Boolean
+        get() = prefs.getBoolean(KEY_EEVEE_GIFT, false)
+        set(value) = prefs.edit { putBoolean(KEY_EEVEE_GIFT, value) }
+
+    /** The player turned down the Home card suggesting the Poké Ball widget. */
+    var widgetHintDismissed: Boolean
+        get() = prefs.getBoolean(KEY_WIDGET_HINT_DISMISSED, false)
+        set(value) = prefs.edit { putBoolean(KEY_WIDGET_HINT_DISMISSED, value) }
+
     /** What the player told Oak they're called, or null if he hasn't asked yet. */
     var playerName: String?
         get() = prefs.getString(KEY_PLAYER_NAME, null)
@@ -690,6 +700,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_SHINY_CHAIN_STARTS = "shiny_chain_starts"
         private const val KEY_WAITING_NOTIFICATION = "waiting_notification"
         private const val KEY_POKE_BALL_TIP_SEEN = "poke_ball_tip_seen"
+        private const val KEY_WIDGET_HINT_DISMISSED = "widget_hint_dismissed"
+        private const val KEY_EEVEE_GIFT = "eevee_gift_received"
         private const val KEY_WIDGET_BACKGROUND = "widget_background"
         private const val KEY_QUEUE_WIDGET_BACKGROUND = "queue_widget_background"
         private const val KEY_UNLOCKED_WALLPAPERS = "unlocked_wallpapers"

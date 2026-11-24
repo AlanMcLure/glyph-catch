@@ -18,6 +18,11 @@
     <string name="home_eggs_empty">Aún no tienes huevos. Puede que encuentres uno al capturar un Pokémon.</string>
     <string name="home_update_banner">Ya está disponible la versión %1$s</string>
     <string name="home_update_badge">Actualizar</string>
+    <string name="home_widget_hint_title">Captura con un toque</string>
+    <string name="home_widget_hint_body">En tu móvil se captura desde la app o desde el widget de la Poké Ball. Ponlo en la pantalla de inicio y lanza Poké Balls sin abrir la app.</string>
+    <string name="home_widget_hint_manual">Mantén pulsada la pantalla de inicio, toca Widgets y busca Glyph Catch.</string>
+    <string name="home_widget_hint_add">Añadir widget</string>
+    <string name="home_widget_hint_dismiss">No, gracias</string>
     <string name="missions_title">Misiones</string>
     <string name="missions_description">Misiones nuevas cada día y una más grande cada lunes. Los premios incluyen objetos y un empujón que hace salir Pokémon más raros.</string>
     <string name="missions_daily">DIARIA</string>

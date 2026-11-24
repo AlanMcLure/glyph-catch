@@ -141,6 +141,8 @@
     <string name="settings_section_appearance_description">Farbige Sprites und Widget-Hintergründe</string>
     <string name="settings_section_toy_description">Uhr, Begleiter und Helligkeit der Glyph Matrix</string>
     <string name="settings_section_report_description">Protokolle, um ein Problem zu melden</string>
+    <string name="settings_forum_title">Ideen und Feedback</string>
+    <string name="settings_forum_description">Ideen, Fehler oder einfach ein Hallo: Schreib mir im Glyph-Catch-Thread der Nothing Community</string>
     <string name="settings_summary_weather_live">Echtes Wetter · %1$s</string>
     <string name="settings_summary_sleep">Schlafenszeit: %1$s</string>
     <string name="widget_howto">Um ein Widget hinzuzufügen, halte den Startbildschirm gedrückt, tippe auf Widgets und suche Glyph Catch. Dein Team wählst du in den Details jedes Pokémon im PC.</string>
@@ -260,6 +262,11 @@
     <string name="developer_call_yes">Klar!</string>
     <string name="developer_call_no">Lieber nicht</string>
     <string name="developer_call_bye">Danke fürs Zuhören! Fang sie weiter alle.</string>
+    <string name="eevee_gift_1">Hallo! Ich bin es, Professor Eich. Wie ich höre, hast du schon ein paar Pokémon gefangen, während dein Handy umgedreht lag. So ist es richtig!</string>
+    <string name="eevee_gift_2">Deshalb möchte ich dir etwas Besonderes schenken: dieses Evoli. Pass gut darauf auf!</string>
+    <string name="eevee_gift_3">Evoli kann sich auf viele verschiedene Arten entwickeln. Hast du die Entwicklungssteine in deinem Beutel gesehen? Jeder verwandelt es in ein anderes Pokémon.</string>
+    <string name="eevee_gift_4">Mach weiter so, bis bald!</string>
+    <string name="npc_pokemon_received">Du hast %1$s erhalten!</string>
     <string name="settings_waiting_notification_title">Über wartende Pokémon benachrichtigen</string>
     <string name="settings_waiting_notification_subtitle">Eine stille Benachrichtigung mit einer Schaltfläche, um vom Sperrbildschirm aus einen Pokéball zu werfen, ohne zu entsperren</string>
     <string name="widget_pokeball_name">Pokéball</string>

@@ -141,6 +141,8 @@
     <string name="settings_section_appearance_description">Sprites en couleur et fonds des widgets</string>
     <string name="settings_section_toy_description">Horloge, compagnon et luminosité de la Glyph Matrix</string>
     <string name="settings_section_report_description">Journaux pour signaler un problème</string>
+    <string name="settings_forum_title">Idées et commentaires</string>
+    <string name="settings_forum_description">Des idées, un bug ou juste un bonjour : écris-moi sur le fil Glyph Catch de la communauté Nothing</string>
     <string name="settings_summary_weather_live">Météo réelle · %1$s</string>
     <string name="settings_summary_sleep">Heure du coucher : %1$s</string>
     <string name="widget_howto">Pour ajouter un widget, appuie longuement sur l’écran d’accueil, touche Widgets et cherche Glyph Catch. Ton équipe se choisit depuis la fiche de chaque Pokémon dans le PC.</string>
@@ -260,6 +262,11 @@
     <string name="developer_call_yes">Bien sûr !</string>
     <string name="developer_call_no">Plutôt pas</string>
     <string name="developer_call_bye">Merci de m’avoir écouté ! Continue de tous les attraper.</string>
+    <string name="eevee_gift_1">Bonjour ! C’est moi, le Professeur Chen. On m’a dit que tu avais déjà attrapé quelques Pokémon, téléphone posé face cachée. C’est comme ça qu’on fait !</string>
+    <string name="eevee_gift_2">Alors je veux te donner quelque chose de spécial : cet Évoli. Prends-en bien soin !</string>
+    <string name="eevee_gift_3">Évoli peut évoluer de bien des façons. As-tu vu les pierres d’évolution dans ton Sac ? Chacune le transforme en un Pokémon différent.</string>
+    <string name="eevee_gift_4">Continue comme ça, et à bientôt !</string>
+    <string name="npc_pokemon_received">Tu as reçu %1$s !</string>
     <string name="settings_waiting_notification_title">Prévenir des Pokémon en attente</string>
     <string name="settings_waiting_notification_subtitle">Une notification silencieuse avec un bouton pour lancer une Poké Ball depuis l’écran de verrouillage, sans déverrouiller</string>
     <string name="widget_pokeball_name">Poké Ball</string>

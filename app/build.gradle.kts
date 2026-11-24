@@ -30,8 +30,8 @@ android {
         applicationId = "dev.erikpeto.glyphcatch"
         minSdk = 35
         targetSdk = 36
-        versionCode = 39000
-        versionName = "3.9.0"
+        versionCode = 310000
+        versionName = "3.9.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

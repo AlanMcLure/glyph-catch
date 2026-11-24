@@ -18,6 +18,11 @@
     <string name="home_eggs_empty">No eggs yet. You might find one when you catch a Pokémon.</string>
     <string name="home_update_banner">Version %1$s is available</string>
     <string name="home_update_badge">Update</string>
+    <string name="home_widget_hint_title">Catch with one tap</string>
+    <string name="home_widget_hint_body">On your phone you catch from the app or from the Poké Ball widget. Put it on your home screen and throw Poké Balls without opening the app.</string>
+    <string name="home_widget_hint_manual">Long-press your home screen, tap Widgets and look for Glyph Catch.</string>
+    <string name="home_widget_hint_add">Add widget</string>
+    <string name="home_widget_hint_dismiss">No, thanks</string>
 
     <string name="missions_title">Missions</string>
     <string name="missions_description">New missions every day, and a bigger one every Monday. Rewards include items and a rarity boost for rarer Pokémon.</string>

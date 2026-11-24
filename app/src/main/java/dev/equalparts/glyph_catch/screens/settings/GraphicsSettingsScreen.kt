@@ -59,6 +59,7 @@ import dev.equalparts.glyph_catch.R
 import dev.equalparts.glyph_catch.data.PreferencesManager
 import dev.equalparts.glyph_catch.data.SpawnPace
 import dev.equalparts.glyph_catch.gameplay.WaitingNotification
+import dev.equalparts.glyph_catch.util.GlyphDevice
 import dev.equalparts.glyph_catch.widget.Achievement
 import dev.equalparts.glyph_catch.widget.AchievementState
 import dev.equalparts.glyph_catch.widget.Achievements
@@ -257,7 +258,13 @@ private fun IdleDisplayCard(prefs: PreferencesManager) {
             )
             Spacer(modifier = Modifier.height(AppSizes.spacingMedium))
             Row(horizontalArrangement = Arrangement.spacedBy(AppSizes.spacingSmall)) {
-                IDLE_OPTIONS.forEach { (value, label) ->
+                // The companion doesn't fit the Phone (4a) Pro's small matrix
+                val options = if (GlyphDevice.isPhone4aPro) {
+                    IDLE_OPTIONS.filter { it.first != PreferencesManager.IDLE_COMPANION }
+                } else {
+                    IDLE_OPTIONS
+                }
+                options.forEach { (value, label) ->
                     FilterChip(
                         selected = selected == value,
                         onClick = {

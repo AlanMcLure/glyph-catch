@@ -28,6 +28,7 @@ import dev.equalparts.glyph_catch.debug.DebugExceptionTracker
 import dev.equalparts.glyph_catch.debug.DebugSnapshot
 import dev.equalparts.glyph_catch.gameplay.animation.AnimationCoordinator
 import dev.equalparts.glyph_catch.gameplay.animation.GlyphMatrixHelper
+import dev.equalparts.glyph_catch.gameplay.animation.SmallClock
 import dev.equalparts.glyph_catch.gameplay.spawner.GameplayContext
 import dev.equalparts.glyph_catch.gameplay.spawner.SpawnCadenceController
 import dev.equalparts.glyph_catch.gameplay.spawner.SpawnContext
@@ -146,7 +147,10 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
         spawnEngine = SpawnRulesEngine(
             rules = createSpawnRules(gameplayContext),
             speciesFilter = { gameplayContext.trainer.canSpawn(it.id) },
-            shinyMultiplier = { EventHelpers.shinyMultiplier(it.id, gameplayContext.trainer.catchCounts[it.id] ?: 0) }
+            shinyMultiplier = {
+                val trainer = gameplayContext.trainer
+                EventHelpers.shinyMultiplier(it.id, trainer.catchCounts[it.id] ?: 0, firstShiny = !trainer.hasShiny)
+            }
         )
         spawnHistory = SpawnHistoryTracker(preferences = preferencesManager, pokemonDao = db.pokemonDao())
         cadenceController = SpawnCadenceController(spawnEngine = spawnEngine, history = spawnHistory)
@@ -579,10 +583,14 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
     private fun showPokeBall(brightnessFactor: Float?): Boolean {
         val waiting = synchronized(spawnQueue) { spawnQueue.toList() }
         if (waiting.isEmpty()) {
-            // Nothing fits the small matrix when idle; elsewhere the usual clock or companion
+            // Elsewhere the usual clock or companion; the small matrix only fits the time
             if (!GlyphDevice.isPhone4aPro) return false
             displayedSpawn = null
-            clearGlyphMatrix()
+            if (preferencesManager.glyphIdleDisplay == PreferencesManager.IDLE_NONE) {
+                clearGlyphMatrix()
+            } else {
+                showSmallClock(brightnessFactor)
+            }
             return true
         }
         displayedSpawn = waiting.first()
@@ -667,6 +675,19 @@ class PokemonGlyphToyService : GlyphMatrixService("Pokemon-Glyph-Toy") {
 
             gmm.setMatrixFrame(frame.render())
         }
+    }
+
+    /**
+     * The time on the Phone (4a) Pro's 13×13 matrix: hours above minutes. With the companion
+     * chosen it shows too, since no Pokémon fits there and the time beats a dark matrix.
+     */
+    private fun showSmallClock(brightnessFactor: Float?) {
+        val now = Calendar.getInstance()
+        val is24Hour = DateFormat.is24HourFormat(applicationContext)
+        // The 12-hour clock says 12, not 0, at noon and midnight
+        val hour = if (is24Hour) now.get(Calendar.HOUR_OF_DAY) else now.get(Calendar.HOUR).takeIf { it != 0 } ?: 12
+        val frame = SmallClock.render(hour, now.get(Calendar.MINUTE), padHour = is24Hour)
+        glyphMatrixManager?.setMatrixFrame(brightnessFactor?.let { frameFactory.adjustBrightness(frame, it) } ?: frame)
     }
 
     /**

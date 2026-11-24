@@ -69,4 +69,20 @@ class ShinyOddsTest {
         assertEquals(8, EventHelpers.wildShinyOdds(16, LocalDate.of(2026, 10, 31)))
         assertEquals(8, EventHelpers.wildShinyOdds(64, LocalDate.of(2026, 3, 10)))
     }
+
+    @Test
+    fun `until the first shiny they are four times likelier`() {
+        val normalDay = LocalDate.of(2026, 3, 10)
+        val rattata = EventHelpers.shinyMultiplier(19, chain = 0, firstShiny = true)
+        assertEquals(128, EventHelpers.wildShinyOdds(rattata, normalDay))
+        // On top of a chain, still capped at 1 in 8
+        assertEquals(
+            64,
+            EventHelpers.wildShinyOdds(EventHelpers.shinyMultiplier(19, chain = 10, firstShiny = true), normalDay)
+        )
+        assertEquals(
+            8,
+            EventHelpers.wildShinyOdds(EventHelpers.shinyMultiplier(150, chain = 0, firstShiny = true), normalDay)
+        )
+    }
 }

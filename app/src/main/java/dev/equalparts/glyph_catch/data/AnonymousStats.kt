@@ -1,7 +1,5 @@
 package dev.equalparts.glyph_catch.data
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -13,6 +11,7 @@ import dev.equalparts.glyph_catch.util.GlyphDevice
 import dev.equalparts.glyph_catch.widget.PokeBallWidgetReceiver
 import dev.equalparts.glyph_catch.widget.QueueWidgetReceiver
 import dev.equalparts.glyph_catch.widget.TeamWidgetReceiver
+import dev.equalparts.glyph_catch.widget.placedWidgets
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -79,8 +78,7 @@ object AnonymousStats {
         val bag = db.inventoryDao().getAllItems()
             .mapNotNull { row -> Item.entries.getOrNull(row.itemId)?.let { it to row.quantity } }
             .toMap()
-        val widgets = AppWidgetManager.getInstance(context)
-        fun placed(receiver: Class<*>): Int = widgets.getAppWidgetIds(ComponentName(context, receiver)).size
+        fun placed(receiver: Class<*>): Int = placedWidgets(context, receiver)
         val firstCatch = dao.getFirstCatchTime()
         mapOf(
             "v" to VERSION,

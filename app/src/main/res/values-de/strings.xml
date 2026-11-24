@@ -208,6 +208,7 @@
     <string name="pool_rare">Selten</string>
     <string name="pool_very_rare">Sehr selten</string>
     <string name="pool_egg">Ei</string>
+    <string name="pool_gift">Geschenk von Prof. Eich</string>
     <string name="pool_evolution">Entwicklung</string>
     <string name="caught_detail_empty_title">Pokémon nicht gefunden</string>
     <string name="caught_detail_empty_subtitle">Versuch es noch einmal über die Liste der gefangenen Pokémon.</string>

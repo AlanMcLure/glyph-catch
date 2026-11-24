@@ -208,6 +208,7 @@
     <string name="pool_rare">Raro</string>
     <string name="pool_very_rare">Muy raro</string>
     <string name="pool_egg">Huevo</string>
+    <string name="pool_gift">Regalo del Prof. Oak</string>
     <string name="pool_evolution">Evolución</string>
     <string name="caught_detail_empty_title">No se ha encontrado el Pokémon</string>
     <string name="caught_detail_empty_subtitle">Vuelve a intentarlo desde la lista de capturados.</string>

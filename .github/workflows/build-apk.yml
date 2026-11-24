@@ -33,6 +33,14 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > ${{ github.workspace }}/app/release.keystore
 
+      # Without it the APK builds fine but never sends the anonymous stats, so better to stop here
+      - name: Decode google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then echo "GOOGLE_SERVICES_JSON secret is missing"; exit 1; fi
+          echo "$GOOGLE_SERVICES_JSON" | base64 -d > ${{ github.workspace }}/app/google-services.json
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 

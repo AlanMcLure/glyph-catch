@@ -184,6 +184,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(AppSizes.spacingXLarge))
             UpdateBanner()
             WaitingPokemonCard()
+            WidgetHintCard()
             if (!glyphToyHasTicked) {
                 OnboardingCard()
             } else {

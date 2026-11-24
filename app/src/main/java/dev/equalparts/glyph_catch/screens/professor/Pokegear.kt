@@ -156,7 +156,8 @@ private fun NpcEventHost(db: PokemonDatabase, preferencesManager: PreferencesMan
         preferencesManager.breederMet,
         preferencesManager.collectorMet,
         // Never in hidden mode: those stats aren't sent anyway
-        preferencesManager.developerCalled || preferencesManager.playWhileInUse
+        preferencesManager.developerCalled || preferencesManager.playWhileInUse,
+        preferencesManager.eeveeGiftReceived
     )
         .firstOrNull { it !in finished } ?: return
 

@@ -18,6 +18,11 @@
     <string name="home_eggs_empty">Noch keine Eier. Vielleicht findest du eins, wenn du ein Pokémon fängst.</string>
     <string name="home_update_banner">Version %1$s ist verfügbar</string>
     <string name="home_update_badge">Aktualisieren</string>
+    <string name="home_widget_hint_title">Mit einem Tippen fangen</string>
+    <string name="home_widget_hint_body">Auf deinem Handy fängst du in der App oder mit dem Pokéball-Widget. Leg es auf deinen Startbildschirm und wirf Pokébälle, ohne die App zu öffnen.</string>
+    <string name="home_widget_hint_manual">Halte den Startbildschirm gedrückt, tippe auf Widgets und suche Glyph Catch.</string>
+    <string name="home_widget_hint_add">Widget hinzufügen</string>
+    <string name="home_widget_hint_dismiss">Nein, danke</string>
     <string name="missions_title">Missionen</string>
     <string name="missions_description">Jeden Tag neue Missionen und jeden Montag eine größere. Als Belohnung gibt es Items und einen Boost für seltenere Pokémon.</string>
     <string name="missions_daily">TÄGLICH</string>

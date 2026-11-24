@@ -45,6 +45,7 @@ import dev.equalparts.glyph_catch.components.formLabel
 import dev.equalparts.glyph_catch.data.CaughtPokemon
 import dev.equalparts.glyph_catch.data.Forms
 import dev.equalparts.glyph_catch.data.LEGENDARY_SPECIES
+import dev.equalparts.glyph_catch.data.NpcEvents
 import dev.equalparts.glyph_catch.data.Pokemon
 import dev.equalparts.glyph_catch.data.PokemonDao
 import dev.equalparts.glyph_catch.data.PokemonDatabase
@@ -55,6 +56,7 @@ import dev.equalparts.glyph_catch.data.Stat
 import dev.equalparts.glyph_catch.data.displayName
 import dev.equalparts.glyph_catch.data.releasePokemon
 import dev.equalparts.glyph_catch.util.EventHelpers
+import dev.equalparts.glyph_catch.util.GlyphDevice
 import dev.equalparts.glyph_catch.util.canHoldEverstone
 import dev.equalparts.glyph_catch.util.levelChoiceTargets
 import java.text.SimpleDateFormat
@@ -214,32 +216,35 @@ private fun CaughtPokemonDetailContent(
                     preferencesManager.team = if (inTeam) team - pokemon.id else team + pokemon.id
                     team = preferencesManager.team
                 }
-                DetailAction(
-                    label = stringResource(R.string.detail_action_glyph),
-                    on = isCompanion,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    if (isCompanion) {
-                        // Back to what it showed before, unless that would still be this Pokémon
-                        preferencesManager.companionId = null
-                        val before = preferencesManager.idleBeforeCompanion ?: idleDisplay
-                        preferencesManager.idleBeforeCompanion = null
-                        preferencesManager.glyphIdleDisplay =
-                            if (before == PreferencesManager.IDLE_COMPANION && pokemon.isTraining) {
-                                PreferencesManager.IDLE_CLOCK
-                            } else {
-                                before
+                // No Pokémon fits the (4a) Pro's small matrix, so there's no companion to show there
+                if (!GlyphDevice.isPhone4aPro) {
+                    DetailAction(
+                        label = stringResource(R.string.detail_action_glyph),
+                        on = isCompanion,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        if (isCompanion) {
+                            // Back to what it showed before, unless that would still be this Pokémon
+                            preferencesManager.companionId = null
+                            val before = preferencesManager.idleBeforeCompanion ?: idleDisplay
+                            preferencesManager.idleBeforeCompanion = null
+                            preferencesManager.glyphIdleDisplay =
+                                if (before == PreferencesManager.IDLE_COMPANION && pokemon.isTraining) {
+                                    PreferencesManager.IDLE_CLOCK
+                                } else {
+                                    before
+                                }
+                        } else {
+                            // Choosing one means you want to see it
+                            if (idleDisplay != PreferencesManager.IDLE_COMPANION) {
+                                preferencesManager.idleBeforeCompanion = idleDisplay
                             }
-                    } else {
-                        // Choosing one means you want to see it
-                        if (idleDisplay != PreferencesManager.IDLE_COMPANION) {
-                            preferencesManager.idleBeforeCompanion = idleDisplay
+                            preferencesManager.companionId = pokemon.id
+                            preferencesManager.glyphIdleDisplay = PreferencesManager.IDLE_COMPANION
                         }
-                        preferencesManager.companionId = pokemon.id
-                        preferencesManager.glyphIdleDisplay = PreferencesManager.IDLE_COMPANION
+                        companionId = preferencesManager.companionId
+                        idleDisplay = preferencesManager.glyphIdleDisplay
                     }
-                    companionId = preferencesManager.companionId
-                    idleDisplay = preferencesManager.glyphIdleDisplay
                 }
             }
 
@@ -500,6 +505,7 @@ private fun poolLabel(pool: String): String = when (pool) {
     "Rare" -> stringResource(R.string.pool_rare)
     "Very Rare", "Starter Pseudo" -> stringResource(R.string.pool_very_rare)
     "Egg" -> stringResource(R.string.pool_egg)
+    NpcEvents.GIFT_POOL -> stringResource(R.string.pool_gift)
     SHEDINJA_POOL -> stringResource(R.string.pool_evolution)
     "Old Rod" -> stringResource(R.string.item_old_rod_name)
     "Good Rod" -> stringResource(R.string.item_good_rod_name)
